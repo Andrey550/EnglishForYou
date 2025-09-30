@@ -1,0 +1,282 @@
+{% extends 'main/layout.html' %}
+
+{% block content %}
+<main class="flex justify-center items-center min-h-[calc(100vh-4rem)] px-4 py-8">
+    <div class="w-full max-w-2xl">
+        <div class="bg-white rounded-xl shadow-2xl p-6 md:p-10 border border-gray-300 fade-in-up">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-2 tracking-tight">Создать аккаунт</h1>
+                <p class="text-gray-600">Присоединяйтесь к EnglishForYou сегодня</p>
+            </div>
+
+            <form class="mb-6" id="registrationForm">
+                <div class="grid md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label for="firstName" class="flex items-center gap-2 font-semibold text-sm text-gray-800 mb-2">
+                            <i class="fas fa-user text-primary w-4"></i>
+                            Имя
+                        </label>
+                        <input type="text" id="firstName"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg text-base transition-all focus:outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(5,150,105,0.1)] focus:-translate-y-px placeholder:text-gray-400"
+                            placeholder="Введите ваше имя" required>
+                        <div class="hidden text-red-500 text-xs mt-2" id="firstNameError"></div>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <label for="email" class="flex items-center gap-2 font-semibold text-sm text-gray-800 mb-2">
+                        <i class="fas fa-envelope text-primary w-4"></i>
+                        Email адрес
+                    </label>
+                    <input type="email" id="email"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg text-base transition-all focus:outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(5,150,105,0.1)] focus:-translate-y-px placeholder:text-gray-400"
+                        placeholder="Введите ваш email" required>
+                    <div class="hidden text-red-500 text-xs mt-2" id="emailError"></div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label for="password" class="flex items-center gap-2 font-semibold text-sm text-gray-800 mb-2">
+                            <i class="fas fa-lock text-primary w-4"></i>
+                            Пароль
+                        </label>
+                        <div class="relative">
+                            <input type="password" id="password"
+                                class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg text-base transition-all focus:outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(5,150,105,0.1)] focus:-translate-y-px placeholder:text-gray-400"
+                                placeholder="Создайте надежный пароль" required>
+                            <i class="fas fa-eye absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-gray-400 hover:text-primary transition-colors"
+                                id="passwordToggle"></i>
+                        </div>
+                        <div class="hidden mt-2" id="passwordStrength">
+                            <div class="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
+                                <div class="h-full w-0 rounded-full transition-all duration-300"
+                                    style="background-color: #ef4444;"></div>
+                            </div>
+                            <span class="text-xs mt-1 font-medium block" style="color: #ef4444;">Слабый пароль</span>
+                        </div>
+                        <div class="hidden text-red-500 text-xs mt-2" id="passwordError"></div>
+                    </div>
+
+                    <div>
+                        <label for="confirmPassword"
+                            class="flex items-center gap-2 font-semibold text-sm text-gray-800 mb-2">
+                            <i class="fas fa-lock text-primary w-4"></i>
+                            Подтверждение пароля
+                        </label>
+                        <div class="relative">
+                            <input type="password" id="confirmPassword"
+                                class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg text-base transition-all focus:outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(5,150,105,0.1)] focus:-translate-y-px placeholder:text-gray-400"
+                                placeholder="Повторите ваш пароль" required>
+                            <i class="fas fa-eye absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-gray-400 hover:text-primary transition-colors"
+                                id="confirmPasswordToggle"></i>
+                        </div>
+                        <div class="hidden text-red-500 text-xs mt-2" id="confirmPasswordError"></div>
+                    </div>
+                </div>
+
+                <button type="submit"
+                    class="group relative w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-black text-white rounded-lg font-semibold overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-md hover:brightness-115 btn-dark-animated active:brightness-95 disabled:opacity-70 disabled:cursor-not-allowed"
+                    id="submitBtn">
+                    <span
+                        class="absolute inset-0 w-0 bg-primary transition-all duration-300 group-hover:w-full z-0"></span>
+                    <i class="fas fa-user-plus relative z-10"></i>
+                    <span class="relative z-10">Зарегистрироваться</span>
+                </button>
+            </form>
+
+            <div class="text-center text-gray-600 text-sm">
+                Уже есть аккаунт? <a href="login.html" class="text-primary font-semibold hover:underline">Войти</a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    // Переключение видимости пароля
+    function setupPasswordToggle(inputId, toggleId) {
+        const input = document.getElementById(inputId);
+        const toggle = document.getElementById(toggleId);
+
+        toggle.addEventListener('click', function () {
+            if (input.type === 'password') {
+                input.type = 'text';
+                toggle.classList.remove('fa-eye');
+                toggle.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                toggle.classList.remove('fa-eye-slash');
+                toggle.classList.add('fa-eye');
+            }
+        });
+    }
+
+    setupPasswordToggle('password', 'passwordToggle');
+    setupPasswordToggle('confirmPassword', 'confirmPasswordToggle');
+
+    // Визуальный эффект для чекбоксов
+    document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        const span = checkbox.nextElementSibling;
+        checkbox.addEventListener('change', function () {
+            if (this.checked) {
+                span.textContent = '✓';
+            } else {
+                span.textContent = '';
+            }
+        });
+    });
+
+    // Проверка силы пароля
+    document.getElementById('password').addEventListener('input', function () {
+        const password = this.value;
+        const strengthBar = document.querySelector('#passwordStrength > div > div');
+        const strengthText = document.querySelector('#passwordStrength > span');
+        const strengthContainer = document.getElementById('passwordStrength');
+
+        if (password.length === 0) {
+            strengthContainer.classList.add('hidden');
+            return;
+        }
+
+        strengthContainer.classList.remove('hidden');
+
+        let strength = 0;
+        let strengthLabel = '';
+        let strengthColor = '';
+
+        if (password.length >= 8) strength++;
+        if (/[a-z]/.test(password)) strength++;
+        if (/[A-Z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+        switch (strength) {
+            case 0:
+            case 1:
+                strengthLabel = 'Очень слабый';
+                strengthColor = '#ef4444';
+                break;
+            case 2:
+                strengthLabel = 'Слабый';
+                strengthColor = '#f59e0b';
+                break;
+            case 3:
+                strengthLabel = 'Средний';
+                strengthColor = '#eab308';
+                break;
+            case 4:
+                strengthLabel = 'Сильный';
+                strengthColor = '#22c55e';
+                break;
+            case 5:
+                strengthLabel = 'Очень сильный';
+                strengthColor = '#059669';
+                break;
+        }
+
+        strengthBar.style.width = `${(strength / 5) * 100}%`;
+        strengthBar.style.backgroundColor = strengthColor;
+        strengthText.textContent = strengthLabel;
+        strengthText.style.color = strengthColor;
+    });
+
+    // Валидация формы
+    function showError(fieldId, message) {
+        const errorElement = document.getElementById(fieldId + 'Error');
+        const inputElement = document.getElementById(fieldId);
+
+        errorElement.textContent = message;
+        errorElement.classList.remove('hidden');
+        inputElement.classList.add('border-red-500', 'bg-red-50/50');
+    }
+
+    function clearError(fieldId) {
+        const errorElement = document.getElementById(fieldId + 'Error');
+        const inputElement = document.getElementById(fieldId);
+
+        errorElement.classList.add('hidden');
+        inputElement.classList.remove('border-red-500', 'bg-red-50/50');
+    }
+
+    function validateForm() {
+        let isValid = true;
+        ['firstName', 'lastName', 'email', 'password', 'confirmPassword', 'level'].forEach(clearError);
+
+        const firstName = document.getElementById('firstName').value.trim();
+        const lastName = document.getElementById('lastName').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const level = document.getElementById('level').value;
+        const agreeTerms = document.getElementById('agreeTerms').checked;
+
+        if (!firstName) {
+            showError('firstName', 'Введите ваше имя');
+            isValid = false;
+        }
+
+        if (!lastName) {
+            showError('lastName', 'Введите вашу фамилию');
+            isValid = false;
+        }
+
+        if (!email) {
+            showError('email', 'Введите email адрес');
+            isValid = false;
+        } else if (!/\S+@\S+\.\S+/.test(email)) {
+            showError('email', 'Введите корректный email адрес');
+            isValid = false;
+        }
+
+        if (!password) {
+            showError('password', 'Создайте пароль');
+            isValid = false;
+        } else if (password.length < 8) {
+            showError('password', 'Пароль должен содержать минимум 8 символов');
+            isValid = false;
+        }
+
+        if (!confirmPassword) {
+            showError('confirmPassword', 'Подтвердите пароль');
+            isValid = false;
+        } else if (password !== confirmPassword) {
+            showError('confirmPassword', 'Пароли не совпадают');
+            isValid = false;
+        }
+
+        if (!level) {
+            showError('level', 'Выберите ваш уровень английского');
+            isValid = false;
+        }
+
+        if (!agreeTerms) {
+            alert('Необходимо согласиться с условиями использования');
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    // Обработка отправки формы
+    document.getElementById('registrationForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        if (validateForm()) {
+            const submitBtn = document.getElementById('submitBtn');
+            const originalHTML = submitBtn.innerHTML;
+
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span class="ml-2">Создание аккаунта...</span>';
+            submitBtn.disabled = true;
+
+            setTimeout(() => {
+                alert('Аккаунт успешно создан!');
+                window.location.href = 'login.html';
+            }, 2000);
+        }
+    });
+
+    // Очистка ошибок при вводе
+    ['firstName', 'lastName', 'email', 'password', 'confirmPassword', 'level'].forEach(fieldId => {
+        document.getElementById(fieldId).addEventListener('input', () => clearError(fieldId));
+    });
+</script>
+{% endblock %}

@@ -67,12 +67,12 @@
     <header class="sticky top-0 z-20 backdrop-blur-md bg-white/75 border-b border-black/[0.06] fade-in-down">
         <div class="flex items-center h-16 w-11/12 max-w-7xl mx-auto gap-4">
             <!-- Brand Logo -->
-            <a href="#" class="inline-flex items-center gap-2 transition-transform hover:scale-110 group">
+            <a href="{% url 'home' %}" class="inline-flex items-center gap-2 transition-transform hover:scale-110 group">
                 <div
                     class="w-6 h-6 rounded bg-primary text-white grid place-items-center font-bold text-sm transition-transform duration-300 ease-in-out group-hover:rotate-360">
-                    AI
+                    EFY
                 </div>
-                <span class="font-extrabold text-xl">AI English</span>
+                <span class="font-extrabold text-xl">EnglishForYou</span>
             </a>
 
             <!-- Navigation Buttons -->
@@ -83,11 +83,7 @@
                 </a>
                 <a href="#"
                     class="inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full bg-white border border-gray-300 text-gray-800 transition-all hover:-translate-y-0.5 hover:shadow-md hover:text-primary hover:border-primary active:bg-gray-100 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
-                    Теория
-                </a>
-                <a href="#"
-                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full bg-white border border-gray-300 text-gray-800 transition-all hover:-translate-y-0.5 hover:shadow-md hover:text-primary hover:border-primary active:bg-gray-100 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
-                    Практика
+                    Уроки
                 </a>
                 <a href="#"
                     class="inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full bg-white border border-gray-300 text-gray-800 transition-all hover:-translate-y-0.5 hover:shadow-md hover:text-primary hover:border-primary active:bg-gray-100 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
@@ -101,7 +97,7 @@
                     class="inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full bg-white border border-gray-300 text-gray-800 transition-all hover:-translate-y-0.5 hover:shadow-md hover:text-primary hover:border-primary active:bg-gray-100 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
                     Войти
                 </a>
-                <a href="#"
+                <a href="{% url 'register' %}"
                     class="group relative inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full bg-black text-white border border-black overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-md hover:brightness-115 btn-dark-animated active:brightness-95 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
                     <span
                         class="absolute inset-0 w-0 bg-primary transition-all duration-300 group-hover:w-full z-0"></span>

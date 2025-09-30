@@ -1,0 +1,121 @@
+{% extends 'main/layout.html' %}
+
+{% block content %}
+<main class="px-4 max-w-[80vw] mx-auto min-h-screen">
+    <div class="flex justify-center items-center min-h-[calc(100vh-65px)] py-8 px-4">
+        <div class="bg-white rounded-xl shadow-lg p-10 w-full max-w-[420px] border border-gray-300 animate-fadeInUp">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-extrabold text-gray-900 mb-2 tracking-tight">Войти в аккаунт</h1>
+                <p class="text-gray-600 m-0 text-base">С возвращением в AI English</p>
+            </div>
+
+            <form class="mb-6" id="loginForm">
+                <div class="mb-6">
+                    <label for="email" class="flex items-center gap-2 font-semibold text-sm text-gray-800 mb-2">
+                        <i class="fas fa-envelope text-primary w-4"></i>
+                        Email адрес
+                    </label>
+                    <input type="email" id="email"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg text-base transition-all duration-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(5,150,105,0.1)]"
+                        placeholder="Введите ваш email" required>
+                </div>
+
+                <div class="mb-6">
+                    <label for="password" class="flex items-center gap-2 font-semibold text-sm text-gray-800 mb-2">
+                        <i class="fas fa-lock text-primary w-4"></i>
+                        Пароль
+                    </label>
+                    <div class="relative">
+                        <input type="password" id="password"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg text-base transition-all duration-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(5,150,105,0.1)]"
+                            placeholder="Введите ваш пароль" required>
+                        <i class="fas fa-eye absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-gray-400 transition-colors duration-300 hover:text-primary"
+                            id="passwordToggle"></i>
+                    </div>
+                    <div class="mt-2 text-right">
+                        <a href="#"
+                            class="text-primary text-sm no-underline transition-colors duration-300 hover:text-primary-700 hover:underline">Забыли
+                            пароль?</a>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <label class="flex items-center gap-2 cursor-pointer text-sm text-gray-800 select-none">
+                        <input type="checkbox" id="rememberMe" class="hidden peer">
+                        <span
+                            class="w-[18px] h-[18px] border-2 border-gray-300 rounded flex items-center justify-center transition-all duration-300 peer-checked:bg-primary peer-checked:border-primary after:content-['✓'] after:text-white after:text-xs after:font-bold after:hidden peer-checked:after:block"></span>
+                        Запомнить меня
+                    </label>
+                </div>
+
+                <button type="submit"
+                    class="w-full flex items-center justify-center gap-2 px-5 py-3.5 font-semibold text-base rounded-full transition-all duration-300 cursor-pointer bg-black text-white border border-black relative overflow-hidden group hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 active:brightness-95">
+                    <span
+                        class="absolute top-0 left-0 w-0 h-full bg-primary transition-all duration-300 group-hover:w-full z-0"></span>
+                    <i class="fas fa-sign-in-alt relative z-10"></i>
+                    <span class="relative z-10">Войти</span>
+                </button>
+            </form>
+
+            <div class="relative text-center my-8 text-gray-600 text-sm">
+                <div class="absolute top-1/2 left-0 right-0 h-px bg-gray-300"></div>
+                <span class="bg-white px-4 relative z-10">или</span>
+            </div>
+
+            <div class="flex flex-col gap-3 mb-8">
+                <button
+                    class="w-full px-5 py-3 border border-gray-300 bg-white text-gray-800 rounded-lg flex items-center justify-center gap-3 font-medium transition-all duration-300 hover:bg-gray-50 hover:border-gray-400 hover:-translate-y-px hover:shadow-md">
+                    <i class="fab fa-google"></i>
+                    <span>Войти через Google</span>
+                </button>
+                <button
+                    class="w-full px-5 py-3 border border-gray-300 bg-white text-gray-800 rounded-lg flex items-center justify-center gap-3 font-medium transition-all duration-300 hover:bg-gray-50 hover:border-gray-400 hover:-translate-y-px hover:shadow-md">
+                    <i class="fab fa-github"></i>
+                    <span>Войти через GitHub</span>
+                </button>
+            </div>
+
+            <div class="text-center text-gray-600 text-sm">
+                Нет аккаунта? <a href="{% url 'register' %}"
+                    class="text-primary no-underline font-semibold transition-colors duration-300 hover:text-primary-700 hover:underline">Зарегистрироваться</a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    // Показать/скрыть пароль
+    document.getElementById('passwordToggle').addEventListener('click', function () {
+        const passwordInput = document.getElementById('password');
+        const icon = this;
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    });
+
+    // Обработка формы логина
+    document.getElementById('loginForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        if (email && password) {
+            console.log('Попытка входа:', { email, password });
+
+            // Симуляция успешного входа
+            setTimeout(() => {
+                alert('Успешный вход!');
+                window.location.href = 'index.html';
+            }, 1000);
+        }
+    });
+</script>
+{% endblock %}

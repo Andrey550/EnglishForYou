@@ -67,7 +67,8 @@
     <header class="sticky top-0 z-20 backdrop-blur-md bg-white/75 border-b border-black/[0.06] fade-in-down">
         <div class="flex items-center h-16 w-11/12 max-w-7xl mx-auto gap-4">
             <!-- Brand Logo -->
-            <a href="{% url 'home' %}" class="inline-flex items-center gap-2 transition-transform hover:scale-110 group">
+            <a href="{% url 'home' %}"
+                class="inline-flex items-center gap-2 transition-transform hover:scale-110 group">
                 <div
                     class="w-6 h-6 rounded bg-primary text-white grid place-items-center font-bold text-sm transition-transform duration-300 ease-in-out group-hover:rotate-360">
                     EFY
@@ -93,10 +94,29 @@
 
             <!-- Action Buttons -->
             <div class="hidden md:flex items-center gap-2.5 ml-auto lg:ml-0">
+                {% if request.user.is_authenticated %}
+                <a href="{% url 'logout' %}"
+                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full bg-white border border-gray-300 text-gray-800 transition-all hover:-translate-y-0.5 hover:shadow-md hover:text-primary hover:border-primary active:bg-gray-100 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
+                    Выйти
+                </a>
+                {% else %}
                 <a href="{% url 'login' %}"
                     class="inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full bg-white border border-gray-300 text-gray-800 transition-all hover:-translate-y-0.5 hover:shadow-md hover:text-primary hover:border-primary active:bg-gray-100 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
                     Войти
                 </a>
+                {% endif %}
+
+
+
+                {% if request.user.is_authenticated %}
+                <a href="{% url 'home' %}"
+                    class="group relative inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full bg-black text-white border border-black overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-md hover:brightness-115 btn-dark-animated active:brightness-95 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
+                    <span
+                        class="absolute inset-0 w-0 bg-primary transition-all duration-300 group-hover:w-full z-0"></span>
+                    <span class="relative z-10">Привет, {{ request.user }}</span>
+                    <i class="fas fa-arrow-right relative z-10 transition-transform group-hover:translate-x-1"></i>
+                </a>
+                {% else %}
                 <a href="{% url 'register' %}"
                     class="group relative inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full bg-black text-white border border-black overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-md hover:brightness-115 btn-dark-animated active:brightness-95 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
                     <span
@@ -104,6 +124,9 @@
                     <span class="relative z-10">Начать обучение</span>
                     <i class="fas fa-arrow-right relative z-10 transition-transform group-hover:translate-x-1"></i>
                 </a>
+                {% endif %}
+
+
             </div>
 
             <!-- Mobile Menu Button -->
@@ -114,7 +137,7 @@
     </header>
 
     {% block content %}
-        
+
     {% endblock %}
 
     <!-- Footer -->

@@ -28,7 +28,7 @@ def register_view(request):
 
 def login_view(request):
     data = {'form': LoginForm()}
-            
+    
     if request.method == 'POST':
         form = LoginForm(request.POST)
         User = get_user_model()
@@ -36,7 +36,9 @@ def login_view(request):
         if form.is_valid():
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
-                        
+            
+            print(f'{email}\n{password}')
+                  
             if User.objects.filter(email=email).exists():
                 user = User.objects.filter(email=email).first()
                 user = authenticate(request, username=user, password=password)
@@ -44,8 +46,6 @@ def login_view(request):
                 if user is not None:
                     login(request, user=user)
                     return redirect('/')
-                
-        data['error'] = 'Неверный email или пароль'
         return render(request, 'user/login.html', data)
     else:  
         return render(request, 'user/login.html', data)
@@ -53,4 +53,4 @@ def login_view(request):
     
 def logout_view(request):
     logout(request)
-    return redirect('/user/login')
+    return redirect('/')

@@ -6,18 +6,17 @@
         <div class="bg-white rounded-xl shadow-lg p-10 w-full max-w-[420px] border border-gray-300 animate-fadeInUp">
             <div class="text-center mb-8">
                 <h1 class="text-3xl font-extrabold text-gray-900 mb-2 tracking-tight">Войти в аккаунт</h1>
-                <p class="text-gray-600 m-0 text-base">С возвращением в AI English</p>
+                <p class="text-gray-600 m-0 text-base">С возвращением в EnglishForYou</p>
             </div>
 
-            <form class="mb-6" id="loginForm">
+            <form class="mb-6" id="loginForm" method="post">
+                {% csrf_token %}
                 <div class="mb-6">
                     <label for="email" class="flex items-center gap-2 font-semibold text-sm text-gray-800 mb-2">
                         <i class="fas fa-envelope text-primary w-4"></i>
                         Email адрес
                     </label>
-                    <input type="email" id="email"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg text-base transition-all duration-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(5,150,105,0.1)]"
-                        placeholder="Введите ваш email" required>
+                    {{ form.email }}
                 </div>
 
                 <div class="mb-6">
@@ -26,54 +25,20 @@
                         Пароль
                     </label>
                     <div class="relative">
-                        <input type="password" id="password"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg text-base transition-all duration-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(5,150,105,0.1)]"
-                            placeholder="Введите ваш пароль" required>
+                        {{ form.password }}
                         <i class="fas fa-eye absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-gray-400 transition-colors duration-300 hover:text-primary"
                             id="passwordToggle"></i>
                     </div>
-                    <div class="mt-2 text-right">
-                        <a href="#"
-                            class="text-primary text-sm no-underline transition-colors duration-300 hover:text-primary-700 hover:underline">Забыли
-                            пароль?</a>
-                    </div>
-                </div>
-
-                <div class="mb-6">
-                    <label class="flex items-center gap-2 cursor-pointer text-sm text-gray-800 select-none">
-                        <input type="checkbox" id="rememberMe" class="hidden peer">
-                        <span
-                            class="w-[18px] h-[18px] border-2 border-gray-300 rounded flex items-center justify-center transition-all duration-300 peer-checked:bg-primary peer-checked:border-primary after:content-['✓'] after:text-white after:text-xs after:font-bold after:hidden peer-checked:after:block"></span>
-                        Запомнить меня
-                    </label>
                 </div>
 
                 <button type="submit"
-                    class="w-full flex items-center justify-center gap-2 px-5 py-3.5 font-semibold text-base rounded-full transition-all duration-300 cursor-pointer bg-black text-white border border-black relative overflow-hidden group hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 active:brightness-95">
+                    class="group relative w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-black text-white rounded-lg font-semibold overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-md hover:brightness-115 btn-dark-animated active:brightness-95 disabled:opacity-70 disabled:cursor-not-allowed">
                     <span
                         class="absolute top-0 left-0 w-0 h-full bg-primary transition-all duration-300 group-hover:w-full z-0"></span>
                     <i class="fas fa-sign-in-alt relative z-10"></i>
                     <span class="relative z-10">Войти</span>
                 </button>
             </form>
-
-            <div class="relative text-center my-8 text-gray-600 text-sm">
-                <div class="absolute top-1/2 left-0 right-0 h-px bg-gray-300"></div>
-                <span class="bg-white px-4 relative z-10">или</span>
-            </div>
-
-            <div class="flex flex-col gap-3 mb-8">
-                <button
-                    class="w-full px-5 py-3 border border-gray-300 bg-white text-gray-800 rounded-lg flex items-center justify-center gap-3 font-medium transition-all duration-300 hover:bg-gray-50 hover:border-gray-400 hover:-translate-y-px hover:shadow-md">
-                    <i class="fab fa-google"></i>
-                    <span>Войти через Google</span>
-                </button>
-                <button
-                    class="w-full px-5 py-3 border border-gray-300 bg-white text-gray-800 rounded-lg flex items-center justify-center gap-3 font-medium transition-all duration-300 hover:bg-gray-50 hover:border-gray-400 hover:-translate-y-px hover:shadow-md">
-                    <i class="fab fa-github"></i>
-                    <span>Войти через GitHub</span>
-                </button>
-            </div>
 
             <div class="text-center text-gray-600 text-sm">
                 Нет аккаунта? <a href="{% url 'register' %}"

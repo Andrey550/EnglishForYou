@@ -1,0 +1,134 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnglishForYou - Изучайте английский с ИИ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#059669',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes pulse-shadow {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+            }
+        }
+
+        .btn-dark-animated:hover {
+            animation: pulse-shadow 1s infinite;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-down {
+            animation: fadeInDown 0.5s ease-out;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-gradient-to-b from-white to-gray-50 antialiased">
+    <!-- Header / Topbar -->
+    <header class="sticky top-0 z-20 backdrop-blur-md bg-white/75 border-b border-black/[0.06] fade-in-down">
+        <div class="flex items-center h-16 w-11/12 max-w-7xl mx-auto gap-4">
+            <!-- Brand Logo -->
+            <a href="#" class="inline-flex items-center gap-2 transition-transform hover:scale-110 group">
+                <div
+                    class="w-6 h-6 rounded bg-primary text-white grid place-items-center font-bold text-sm transition-transform duration-300 ease-in-out group-hover:rotate-360">
+                    AI
+                </div>
+                <span class="font-extrabold text-xl">AI English</span>
+            </a>
+
+            <!-- Navigation Buttons -->
+            <nav class="hidden lg:flex items-center gap-2.5 m-auto">
+                <a href="#"
+                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full bg-white border border-gray-300 text-gray-800 transition-all hover:-translate-y-0.5 hover:shadow-md hover:text-primary hover:border-primary active:bg-gray-100 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
+                    Словарь
+                </a>
+                <a href="#"
+                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full bg-white border border-gray-300 text-gray-800 transition-all hover:-translate-y-0.5 hover:shadow-md hover:text-primary hover:border-primary active:bg-gray-100 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
+                    Теория
+                </a>
+                <a href="#"
+                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full bg-white border border-gray-300 text-gray-800 transition-all hover:-translate-y-0.5 hover:shadow-md hover:text-primary hover:border-primary active:bg-gray-100 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
+                    Практика
+                </a>
+                <a href="#"
+                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full bg-white border border-gray-300 text-gray-800 transition-all hover:-translate-y-0.5 hover:shadow-md hover:text-primary hover:border-primary active:bg-gray-100 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
+                    Чат с ботом
+                </a>
+            </nav>
+
+            <!-- Action Buttons -->
+            <div class="hidden md:flex items-center gap-2.5 ml-auto lg:ml-0">
+                <a href="#"
+                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full bg-white border border-gray-300 text-gray-800 transition-all hover:-translate-y-0.5 hover:shadow-md hover:text-primary hover:border-primary active:bg-gray-100 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
+                    Войти
+                </a>
+                <a href="#"
+                    class="group relative inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full bg-black text-white border border-black overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-md hover:brightness-115 btn-dark-animated active:brightness-95 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
+                    <span
+                        class="absolute inset-0 w-0 bg-primary transition-all duration-300 group-hover:w-full z-0"></span>
+                    <span class="relative z-10">Начать обучение</span>
+                    <i class="fas fa-arrow-right relative z-10 transition-transform group-hover:translate-x-1"></i>
+                </a>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <button class="lg:hidden ml-auto p-2 text-gray-700 hover:bg-gray-100 rounded-lg">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </div>
+    </header>
+
+    {% block content %}
+        
+    {% endblock %}
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-300 py-8 bg-gray-50">
+        <div class="max-w-6xl mx-auto px-8 text-gray-500 text-sm text-center">
+            <p>© 2025 EnglishAI. Все права защищены. Создано с <span class="text-red-500">❤️</span> для эффективного
+                изучения английского языка.</p>
+        </div>
+    </footer>
+
+</body>
+
+</html>

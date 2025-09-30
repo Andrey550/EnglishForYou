@@ -1,0 +1,103 @@
+{% extends 'main/layout.html' %}
+
+{% block content %}
+<!-- Main Content -->
+<main class="px-4 max-w-screen-xl mx-auto flex items-center">
+    <!-- Hero Section -->
+    <section class="grid lg:grid-cols-2 gap-10 items-center py-12 w-full">
+        <div class="max-w-xl">
+            <h1 class="text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight">
+                Изучайте английский с помощью
+                <span class="text-primary">ИИ</span>
+            </h1>
+            <p class="mt-4 text-gray-600 leading-relaxed max-w-prose">
+                Революционная платформа для изучения английского языка с использованием
+                искусственного интеллекта. Персонализированное обучение, интерактивные
+                диалоги и мгновенная обратная связь.
+            </p>
+
+            <div class="mt-5 flex flex-wrap gap-2.5">
+                <a href="#"
+                    class="group relative inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full bg-black text-white border border-black overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-md hover:brightness-115 btn-dark-animated active:brightness-95">
+                    <span
+                        class="absolute inset-0 w-0 bg-primary transition-all duration-300 group-hover:w-full z-0"></span>
+                    <i class="fas fa-rocket relative z-10"></i>
+                    <span class="relative z-10">Начать обучение бесплатно</span>
+                </a>
+                <a href="#"
+                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full bg-white border border-gray-300 text-gray-800 transition-all hover:-translate-y-0.5 hover:shadow-md hover:text-primary hover:border-primary">
+                    <i class="fas fa-play"></i>
+                    <span>Посмотреть демо</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="w-full">
+            <div class="relative overflow-hidden border border-gray-300 rounded-xl bg-white shadow-2xl">
+                <img src="https://images.unsplash.com/photo-1501630834273-4b5604d2ee31?q=80&w=1470&auto=format&fit=crop"
+                    alt="AI English Platform" class="w-full aspect-[4/3] object-cover">
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- Features -->
+<section class="px-4 max-w-screen-xl mx-auto pb-12 mt-5">
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div
+            class="flex gap-3 items-start p-3 bg-white border border-gray-300 rounded-lg shadow-sm transition-all hover:shadow-xl hover:-translate-y-0.5 cursor-pointer">
+            <i class="fas fa-brain w-5 h-5 text-primary flex-shrink-0 mt-0.5"></i>
+            <div>
+                <h3 class="text-base font-bold">ИИ-персонализация</h3>
+                <p class="mt-0.5 text-xs text-gray-600">Алгоритмы подстраивают уроки под ваш стиль обучения</p>
+            </div>
+        </div>
+
+        <div
+            class="flex gap-3 items-start p-3 bg-white border border-gray-300 rounded-lg shadow-sm transition-all hover:shadow-xl hover:-translate-y-0.5 cursor-pointer">
+            <i class="fas fa-comments w-5 h-5 text-primary flex-shrink-0 mt-0.5"></i>
+            <div>
+                <h3 class="text-base font-bold">Интерактивные диалоги</h3>
+                <p class="mt-0.5 text-xs text-gray-600">Практикуйте разговорный английский с ИИ-собеседником</p>
+            </div>
+        </div>
+
+        <div
+            class="flex gap-3 items-start p-3 bg-white border border-gray-300 rounded-lg shadow-sm transition-all hover:shadow-xl hover:-translate-y-0.5 cursor-pointer">
+            <i class="fas fa-chart-line w-5 h-5 text-primary flex-shrink-0 mt-0.5"></i>
+            <div>
+                <h3 class="text-base font-bold">Отслеживание прогресса</h3>
+                <p class="mt-0.5 text-xs text-gray-600">Детальная аналитика вашего обучения и достижений</p>
+            </div>
+        </div>
+
+        <div
+            class="flex gap-3 items-start p-3 bg-white border border-gray-300 rounded-lg shadow-sm transition-all hover:shadow-xl hover:-translate-y-0.5 cursor-pointer">
+            <i class="fas fa-book-open w-5 h-5 text-primary flex-shrink-0 mt-0.5"></i>
+            <div>
+                <h3 class="text-base font-bold">Адаптивная программа</h3>
+                <p class="mt-0.5 text-xs text-gray-600">Курс автоматически адаптируется под ваш уровень</p>
+            </div>
+        </div>
+
+        <div
+            class="flex gap-3 items-start p-3 bg-white border border-gray-300 rounded-lg shadow-sm transition-all hover:shadow-xl hover:-translate-y-0.5 cursor-pointer">
+            <i class="fas fa-microphone w-5 h-5 text-primary flex-shrink-0 mt-0.5"></i>
+            <div>
+                <h3 class="text-base font-bold">Распознавание речи</h3>
+                <p class="mt-0.5 text-xs text-gray-600">Улучшайте произношение с помощью ИИ-анализа</p>
+            </div>
+        </div>
+
+        <div
+            class="flex gap-3 items-start p-3 bg-white border border-gray-300 rounded-lg shadow-sm transition-all hover:shadow-xl hover:-translate-y-0.5 cursor-pointer">
+            <i class="fas fa-clock w-5 h-5 text-primary flex-shrink-0 mt-0.5"></i>
+            <div>
+                <h3 class="text-base font-bold">24/7 доступность</h3>
+                <p class="mt-0.5 text-xs text-gray-600">Изучайте английский в любое время и в любом месте</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

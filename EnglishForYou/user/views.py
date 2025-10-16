@@ -56,4 +56,7 @@ def logout_view(request):
     return redirect('/')
 
 def user_profile_view(request):
+    User = get_user_model()
+    for user in User.objects.all():
+        print(f'{user.username}: {user.profile.about}')
     return render(request, 'user/user_profile.html')

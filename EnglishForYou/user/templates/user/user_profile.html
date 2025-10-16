@@ -2,611 +2,452 @@
 
 {% block content %}
 <main class="py-8">
-    <div class="max-w-7xl mx-auto px-4">
-        <div class="mb-8">
-            <h1 class="text-3xl font-extrabold text-gray-900 m-0">Личный кабинет</h1>
-            <p class="text-base text-gray-600 mt-2 m-0">Управляйте своим профилем и отслеживайте прогресс изучения
-                английского</p>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Left Column -->
-            <div class="lg:col-span-2 space-y-6">
-                <!-- Personal Information -->
-                <div
-                    class="bg-white border border-gray-300 rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
-                    <div class="flex justify-between items-center px-6 py-5 border-b border-gray-300 bg-gray-50">
-                        <h3 class="text-lg font-bold m-0 flex items-center gap-2">
-                            <i class="fas fa-user text-primary w-[18px] h-[18px]"></i>
-                            Персональные данные
-                        </h3>
-                        <button onclick="editProfile()"
-                            class="inline-flex items-center justify-center gap-2 px-3 py-1.5 font-semibold text-sm rounded-full transition-all duration-300 cursor-pointer bg-white border border-gray-300 text-gray-800 hover:text-primary hover:border-primary hover:-translate-y-0.5 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
-                            <i class="fas fa-edit"></i>
-                            Редактировать
-                        </button>
-                    </div>
-                    <div class="flex items-center gap-4 p-6">
-                        <div
-                            class="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-emerald-700 text-white flex items-center justify-center font-bold text-xl shadow-lg">
-                            {{ request.user.username|first|upper }}{{ request.user.last_name|first|upper }}
-                        </div>
-                        <div>
-                            <h2 class="m-0 mb-2 text-xl font-bold">{{ request.user.username }} {{ request.user.last_name }}</h2>
-                            <p class="my-1 text-base text-gray-800">
-                                <i class="fas fa-envelope text-primary w-4 mr-2"></i> {{ request.user.email }}
-                            </p>
-                            <p class="my-1 text-base text-gray-800">
-                                <i class="fas fa-calendar text-primary w-4 mr-2"></i> Зарегистрирован: {{ request.user.date_joined|date:"d E Y" }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Interests -->
-                <div
-                    class="bg-white border border-gray-300 rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
-                    <div class="flex justify-between items-center px-6 py-5 border-b border-gray-300 bg-gray-50">
-                        <h3 class="text-lg font-bold m-0 flex items-center gap-2">
-                            <i class="fas fa-heart text-primary w-[18px] h-[18px]"></i>
-                            Интересы
-                        </h3>
-                        <button onclick="openInterestsModal()"
-                            class="inline-flex items-center justify-center gap-2 px-3 py-1.5 font-semibold text-sm rounded-full transition-all duration-300 cursor-pointer bg-white border border-gray-300 text-gray-800 hover:text-primary hover:border-primary hover:-translate-y-0.5 hover:shadow-md">
-                            <i class="fas fa-edit"></i>
-                            Изменить
-                        </button>
-                    </div>
-                    <div class="flex flex-wrap gap-3 p-4 px-6" id="interestsGrid">
-                        <div class="interest-tag group flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium transition-all hover:shadow-md hover:-translate-y-0.5"
-                            data-interest="business">
-                            <i class="fas fa-briefcase w-4"></i>
-                            Бизнес-английский
-                            <span
-                                class="ml-auto cursor-pointer text-gray-500 p-0.5 rounded-full hidden group-hover:inline-block hover:text-gray-800"
-                                onclick="removeInterest(this, event)">
-                                <i class="fas fa-times"></i>
-                            </span>
-                        </div>
-                        <div class="interest-tag group flex items-center gap-2 px-4 py-2 bg-amber-100 text-amber-800 rounded-full text-sm font-medium transition-all hover:shadow-md hover:-translate-y-0.5"
-                            data-interest="travel">
-                            <i class="fas fa-plane w-4"></i>
-                            Путешествия
-                            <span
-                                class="ml-auto cursor-pointer text-gray-500 p-0.5 rounded-full hidden group-hover:inline-block hover:text-gray-800"
-                                onclick="removeInterest(this, event)">
-                                <i class="fas fa-times"></i>
-                            </span>
-                        </div>
-                        <div class="interest-tag group flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-800 rounded-full text-sm font-medium transition-all hover:shadow-md hover:-translate-y-0.5"
-                            data-interest="movies">
-                            <i class="fas fa-film w-4"></i>
-                            Кино
-                            <span
-                                class="ml-auto cursor-pointer text-gray-500 p-0.5 rounded-full hidden group-hover:inline-block hover:text-gray-800"
-                                onclick="removeInterest(this, event)">
-                                <i class="fas fa-times"></i>
-                            </span>
-                        </div>
-                        <div class="interest-tag group flex items-center gap-2 px-4 py-2 bg-cyan-100 text-cyan-800 rounded-full text-sm font-medium transition-all hover:shadow-md hover:-translate-y-0.5"
-                            data-interest="tech">
-                            <i class="fas fa-laptop-code w-4"></i>
-                            Технологии
-                            <span
-                                class="ml-auto cursor-pointer text-gray-500 p-0.5 rounded-full hidden group-hover:inline-block hover:text-gray-800"
-                                onclick="removeInterest(this, event)">
-                                <i class="fas fa-times"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Goals -->
-                <div
-                    class="bg-white border border-gray-300 rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
-                    <div class="flex justify-between items-center px-6 py-5 border-b border-gray-300 bg-gray-50">
-                        <h3 class="text-lg font-bold m-0 flex items-center gap-2">
-                            <i class="fas fa-target text-primary w-[18px] h-[18px]"></i>
-                            Цели изучения
-                        </h3>
-                        <button onclick="openGoalsModal()"
-                            class="inline-flex items-center justify-center gap-2 px-3 py-1.5 font-semibold text-sm rounded-full transition-all duration-300 cursor-pointer bg-primary text-white border-none hover:bg-emerald-700 hover:shadow-md">
-                            <i class="fas fa-plus"></i>
-                            Добавить цель
-                        </button>
-                    </div>
-                    <div id="goalsList">
-                        <div class="px-6 py-4 border-b border-gray-300 last:border-b-0 transition-all hover:bg-gray-50">
-                            <div class="flex justify-between items-center">
-                                <div class="flex items-center gap-3 font-medium">
-                                    <i class="fas fa-certificate text-primary w-4"></i>
-                                    <span>Сдать IELTS на 7.0</span>
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <div
-                                        class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
-                                        Активная</div>
-                                    <span
-                                        class="cursor-pointer text-gray-500 p-1 rounded transition-colors hover:bg-gray-200 hover:text-gray-800"
-                                        onclick="removeGoal(this)">
-                                        <i class="fas fa-trash"></i>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="px-6 py-4 border-b border-gray-300 last:border-b-0 transition-all hover:bg-gray-50">
-                            <div class="flex justify-between items-center">
-                                <div class="flex items-center gap-3 font-medium">
-                                    <i class="fas fa-comments text-primary w-4"></i>
-                                    <span>Улучшить разговорную речь</span>
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <div
-                                        class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
-                                        Активная</div>
-                                    <span
-                                        class="cursor-pointer text-gray-500 p-1 rounded transition-colors hover:bg-gray-200 hover:text-gray-800"
-                                        onclick="removeGoal(this)">
-                                        <i class="fas fa-trash"></i>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="px-6 py-4 border-b border-gray-300 last:border-b-0 transition-all hover:bg-gray-50">
-                            <div class="flex justify-between items-center">
-                                <div class="flex items-center gap-3 font-medium">
-                                    <i class="fas fa-pen text-primary w-4"></i>
-                                    <span>Улучшить письменную речь</span>
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <div
-                                        class="px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
-                                        Запланирована</div>
-                                    <span
-                                        class="cursor-pointer text-gray-500 p-1 rounded transition-colors hover:bg-gray-200 hover:text-gray-800"
-                                        onclick="removeGoal(this)">
-                                        <i class="fas fa-trash"></i>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Additional Information -->
-                <div
-                    class="bg-white border border-gray-300 rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
-                    <div class="flex justify-between items-center px-6 py-5 border-b border-gray-300 bg-gray-50">
-                        <h3 class="text-lg font-bold m-0 flex items-center gap-2">
-                            <i class="fas fa-sticky-note text-primary w-[18px] h-[18px]"></i>
-                            Дополнительная информация
-                        </h3>
-                        <button onclick="saveAdditionalInfo()"
-                            class="inline-flex items-center justify-center gap-2 px-3 py-1.5 font-semibold text-sm rounded-full transition-all duration-300 cursor-pointer bg-white border border-gray-300 text-gray-800 hover:text-primary hover:border-primary hover:-translate-y-0.5 hover:shadow-md">
-                            <i class="fas fa-save"></i>
-                            Сохранить
-                        </button>
-                    </div>
-                    <div class="p-4 px-6">
-                        <textarea id="additionalInfo"
-                            placeholder="Расскажите о себе больше, укажите ваши предпочтения в обучении, пожелания или комментарии..."
-                            class="w-full min-h-[100px] p-3 border border-gray-300 rounded-xl text-base resize-y focus:outline-none focus:border-primary focus:shadow-[0_0_0_2px_rgba(5,150,105,0.2)] transition-all">Интересуюсь международным бизнесом и новыми технологиями. Хотелось бы больше практиковаться в деловом общении, так как планирую карьерный рост в международной компании.</textarea>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Column -->
-            <div class="space-y-6">
-                <!-- Level Status -->
-                <div
-                    class="bg-white border border-gray-300 rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
-                    <div class="flex justify-between items-center px-6 py-5 border-b border-gray-300 bg-gray-50">
-                        <h3 class="text-lg font-bold m-0 flex items-center gap-2">
-                            <i class="fas fa-chart-line text-primary w-[18px] h-[18px]"></i>
-                            Уровень языка
-                        </h3>
-                    </div>
-                    <div class="text-center p-6">
-
-                        <!-- If user has NO level -->
-                        <div class="py-4">
-                            <div
-                                class="w-20 h-20 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
-                                <i class="fas fa-question text-4xl text-gray-400"></i>
-                            </div>
-                            <h4 class="text-lg font-bold text-gray-900 mb-2">Уровень не определён</h4>
-                            <p class="text-sm text-gray-600 mb-6 px-4">
-                                Пройдите тест для определения вашего уровня владения английским языком
-                            </p>
-
-                            <!-- Take test button -->
-                            <a href="#"
-                                class="group relative inline-flex items-center justify-center gap-2 px-6 py-3 font-semibold text-base rounded-full bg-gradient-to-r from-primary to-emerald-700 text-white border-none overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 active:brightness-95">
-                                <span
-                                    class="absolute inset-0 w-0 bg-emerald-800 transition-all duration-300 group-hover:w-full z-0"></span>
-                                <i class="fas fa-clipboard-check relative z-10"></i>
-                                <span class="relative z-10">Пройти тест</span>
-                                <i
-                                    class="fas fa-arrow-right relative z-10 transition-transform group-hover:translate-x-1"></i>
-                            </a>
-                        </div>
-
-                    </div>
-                </div>
-
-                <!-- Quick Stats -->
-                <div
-                    class="bg-white border border-gray-300 rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
-                    <div class="flex justify-between items-center px-6 py-5 border-b border-gray-300 bg-gray-50">
-                        <h3 class="text-lg font-bold m-0 flex items-center gap-2">
-                            <i class="fas fa-trophy text-primary w-[18px] h-[18px]"></i>
-                            Статистика
-                        </h3>
-                    </div>
-                    <div class="p-4 px-6">
-                        <div class="grid grid-cols-2 gap-4 mb-4">
-                            <div
-                                class="text-center p-3 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 transition-all hover:shadow-md">
-                                <div class="text-3xl font-extrabold text-blue-700 m-0">127</div>
-                                <div class="text-xs text-blue-600 mt-1 m-0 font-medium">Дней подряд</div>
-                            </div>
-                            <div
-                                class="text-center p-3 rounded-lg bg-gradient-to-br from-green-50 to-green-100 transition-all hover:shadow-md">
-                                <div class="text-3xl font-extrabold text-green-700 m-0">1,248</div>
-                                <div class="text-xs text-green-600 mt-1 m-0 font-medium">Выученных слов</div>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div
-                                class="text-center p-3 rounded-lg bg-gradient-to-br from-purple-50 to-purple-100 transition-all hover:shadow-md">
-                                <div class="text-3xl font-extrabold text-purple-700 m-0">34</div>
-                                <div class="text-xs text-purple-600 mt-1 m-0 font-medium">Уроков пройдено</div>
-                            </div>
-                            <div
-                                class="text-center p-3 rounded-lg bg-gradient-to-br from-amber-50 to-amber-100 transition-all hover:shadow-md">
-                                <div class="text-3xl font-extrabold text-amber-700 m-0">8.7</div>
-                                <div class="text-xs text-amber-600 mt-1 m-0 font-medium">Средний балл</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Recent Activity -->
-                <div
-                    class="bg-white border border-gray-300 rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
-                    <div class="flex justify-between items-center px-6 py-5 border-b border-gray-300 bg-gray-50">
-                        <h3 class="text-lg font-bold m-0 flex items-center gap-2">
-                            <i class="fas fa-clock text-primary w-[18px] h-[18px]"></i>
-                            Последняя активность
-                        </h3>
-                    </div>
-                    <div>
-                        <div class="px-6 py-4 border-b border-gray-300 last:border-b-0 transition-all hover:bg-gray-50">
-                            <div class="flex justify-between items-center">
-                                <div class="flex items-center gap-3 font-medium">
-                                    <div
-                                        class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                                        <i class="fas fa-book text-blue-600 text-sm"></i>
-                                    </div>
-                                    <span class="text-sm">Урок грамматики</span>
-                                </div>
-                                <span class="text-gray-500 text-xs">2 часа назад</span>
-                            </div>
-                        </div>
-                        <div class="px-6 py-4 border-b border-gray-300 last:border-b-0 transition-all hover:bg-gray-50">
-                            <div class="flex justify-between items-center">
-                                <div class="flex items-center gap-3 font-medium">
-                                    <div
-                                        class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                                        <i class="fas fa-robot text-green-600 text-sm"></i>
-                                    </div>
-                                    <span class="text-sm">Чат с ИИ</span>
-                                </div>
-                                <span class="text-gray-500 text-xs">Вчера</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="mb-8">
+      <h1 class="text-3xl font-extrabold text-gray-900 m-0">Личный кабинет</h1>
+      <p class="text-base text-gray-600 mt-2 m-0">Управляйте своим профилем и отслеживайте прогресс изучения английского</p>
     </div>
+
+    <!-- Скрытая форма для отправки данных -->
+    <form id="profileForm" method="POST" style="display: none;">
+      {% csrf_token %}
+      <input type="hidden" name="interests" id="hiddenInterests">
+      <input type="hidden" name="goals" id="hiddenGoals">
+      <input type="hidden" name="about" id="hiddenAbout">
+    </form>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Left Column -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Personal Information -->
+        <div class="bg-white border border-gray-300 rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
+          <div class="flex justify-between items-center px-6 py-5 border-b border-gray-300 bg-gray-50">
+            <h3 class="text-lg font-bold m-0 flex items-center gap-2">
+              <i class="fas fa-user text-primary w-[18px] h-[18px]"></i>
+              Персональные данные
+            </h3>
+            <button onclick="editProfile()"
+              class="inline-flex items-center justify-center gap-2 px-3 py-1.5 font-semibold text-sm rounded-full transition-all duration-300 cursor-pointer bg-white border border-gray-300 text-gray-800 hover:text-primary hover:border-primary hover:-translate-y-0.5 hover:shadow-md">
+              <i class="fas fa-edit"></i>
+              Редактировать
+            </button>
+          </div>
+          <div class="flex items-center gap-4 p-6">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-emerald-700 text-white flex items-center justify-center font-bold text-xl shadow-lg">
+              {{ request.user.first_name|first|upper|default:"U" }}{{ request.user.last_name|first|upper|default:"" }}
+            </div>
+            <div>
+              <h2 class="m-0 mb-2 text-xl font-bold">{{ request.user.first_name|default:request.user.username }} {{ request.user.last_name }}</h2>
+              <p class="my-1 text-base text-gray-800">
+                <i class="fas fa-envelope text-primary w-4 mr-2"></i> {{ request.user.email }}
+              </p>
+              <p class="my-1 text-base text-gray-800">
+                <i class="fas fa-calendar text-primary w-4 mr-2"></i> Зарегистрирован: {{ request.user.date_joined|date:"d E Y" }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interests -->
+        <div class="bg-white border border-gray-300 rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
+          <div class="flex justify-between items-center px-6 py-5 border-b border-gray-300 bg-gray-50">
+            <h3 class="text-lg font-bold m-0 flex items-center gap-2">
+              <i class="fas fa-heart text-primary w-[18px] h-[18px]"></i>
+              Интересы
+            </h3>
+            <button onclick="openInterestsModal()"
+              class="inline-flex items-center justify-center gap-2 px-3 py-1.5 font-semibold text-sm rounded-full transition-all duration-300 cursor-pointer bg-white border border-gray-300 text-gray-800 hover:text-primary hover:border-primary hover:-translate-y-0.5 hover:shadow-md">
+              <i class="fas fa-edit"></i>
+              Изменить
+            </button>
+          </div>
+          <div class="flex flex-wrap gap-3 p-4 px-6" id="interestsGrid">
+            {% for interest in interests_list %}
+              <div class="interest-tag group flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium transition-all hover:shadow-md hover:-translate-y-0.5"
+                   data-interest="{{ interest }}">
+                <i class="fas fa-heart w-4"></i>
+                {{ interest }}
+                <span class="ml-auto cursor-pointer text-gray-500 p-0.5 rounded-full hidden group-hover:inline-block hover:text-gray-800"
+                      onclick="removeInterest(this, event)">
+                  <i class="fas fa-times"></i>
+                </span>
+              </div>
+            {% empty %}
+              <p class="text-gray-500 text-sm">Интересы не указаны. Добавьте их, чтобы персонализировать обучение.</p>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Goals -->
+        <div class="bg-white border border-gray-300 rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
+          <div class="flex justify-between items-center px-6 py-5 border-b border-gray-300 bg-gray-50">
+            <h3 class="text-lg font-bold m-0 flex items-center gap-2">
+              <i class="fas fa-target text-primary w-[18px] h-[18px]"></i>
+              Цели изучения
+            </h3>
+            <button onclick="openGoalsModal()"
+              class="inline-flex items-center justify-center gap-2 px-3 py-1.5 font-semibold text-sm rounded-full transition-all duration-300 cursor-pointer bg-primary text-white border-none hover:bg-emerald-700 hover:shadow-md">
+              <i class="fas fa-plus"></i>
+              Добавить цель
+            </button>
+          </div>
+          <div id="goalsList">
+            {% for goal in goals_list %}
+              <div class="px-6 py-4 border-b border-gray-300 last:border-b-0 transition-all hover:bg-gray-50" data-goal="{{ goal }}">
+                <div class="flex justify-between items-center">
+                  <div class="flex items-center gap-3 font-medium">
+                    <i class="fas fa-target text-primary w-4"></i>
+                    <span>{{ goal }}</span>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <div class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">Активная</div>
+                    <span class="cursor-pointer text-gray-500 p-1 rounded transition-colors hover:bg-gray-200 hover:text-gray-800"
+                          onclick="removeGoal(this)">
+                      <i class="fas fa-trash"></i>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            {% empty %}
+              <div class="px-6 py-4 text-gray-500 text-sm">Цели не установлены. Добавьте цели для более эффективного обучения.</div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Additional Information -->
+        <div class="bg-white border border-gray-300 rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
+          <div class="flex justify-between items-center px-6 py-5 border-b border-gray-300 bg-gray-50">
+            <h3 class="text-lg font-bold m-0 flex items-center gap-2">
+              <i class="fas fa-sticky-note text-primary w-[18px] h-[18px]"></i>
+              Дополнительная информация
+            </h3>
+            <button onclick="saveAdditionalInfo()"
+              class="inline-flex items-center justify-center gap-2 px-3 py-1.5 font-semibold text-sm rounded-full transition-all duration-300 cursor-pointer bg-white border border-gray-300 text-gray-800 hover:text-primary hover:border-primary hover:-translate-y-0.5 hover:shadow-md">
+              <i class="fas fa-save"></i>
+              Сохранить
+            </button>
+          </div>
+          <div class="p-4 px-6">
+            <textarea id="additionalInfo"
+              placeholder="Расскажите о себе больше, укажите ваши предпочтения в обучении, пожелания или комментарии..."
+              class="w-full min-h-[100px] p-3 border border-gray-300 rounded-xl text-base resize-y focus:outline-none focus:border-primary focus:shadow-[0_0_0_2px_rgba(5,150,105,0.2)] transition-all">{{ request.user.profile.about|default:"" }}</textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column (без изменений по логике) -->
+      <div class="space-y-6">
+        <!-- Level Status -->
+        <div class="bg-white border border-gray-300 rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
+          <div class="flex justify-between items-center px-6 py-5 border-b border-gray-300 bg-gray-50">
+            <h3 class="text-lg font-bold m-0 flex items-center gap-2">
+              <i class="fas fa-chart-line text-primary w-[18px] h-[18px]"></i>
+              Уровень языка
+            </h3>
+          </div>
+          <div class="text-center p-6">
+            <div class="py-4">
+              <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+                <i class="fas fa-question text-4xl text-gray-400"></i>
+              </div>
+              <h4 class="text-lg font-bold text-gray-900 mb-2">Уровень не определён</h4>
+              <p class="text-sm text-gray-600 mb-6 px-4">Пройдите тест для определения вашего уровня владения английским языком</p>
+              <a href="#"
+                 class="group relative inline-flex items-center justify-center gap-2 px-6 py-3 font-semibold text-base rounded-full bg-gradient-to-r from-primary to-emerald-700 text-white border-none overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 active:brightness-95">
+                <span class="absolute inset-0 w-0 bg-emerald-800 transition-all duration-300 group-hover:w-full z-0"></span>
+                <i class="fas fa-clipboard-check relative z-10"></i>
+                <span class="relative z-10">Пройти тест</span>
+                <i class="fas fa-arrow-right relative z-10 transition-transform group-hover:translate-x-1"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="bg-white border border-gray-300 rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
+          <div class="flex justify-between items-center px-6 py-5 border-b border-gray-300 bg-gray-50">
+            <h3 class="text-lg font-bold m-0 flex items-center gap-2">
+              <i class="fas fa-trophy text-primary w-[18px] h-[18px]"></i>
+              Статистика
+            </h3>
+          </div>
+          <div class="p-4 px-6">
+            <div class="grid grid-cols-2 gap-4 mb-4">
+              <div class="text-center p-3 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 transition-all hover:shadow-md">
+                <div class="text-3xl font-extrabold text-blue-700 m-0">{{ request.user.profile.days_streak|default:0 }}</div>
+                <div class="text-xs text-blue-600 mt-1 m-0 font-medium">Дней подряд</div>
+              </div>
+              <div class="text-center p-3 rounded-lg bg-gradient-to-br from-green-50 to-green-100 transition-all hover:shadow-md">
+                <div class="text-3xl font-extrabold text-green-700 m-0">{{ request.user.profile.words_learned|default:0 }}</div>
+                <div class="text-xs text-green-600 mt-1 m-0 font-medium">Выученных слов</div>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="text-center p-3 rounded-lg bg-gradient-to-br from-purple-50 to-purple-100 transition-all hover:shadow-md">
+                <div class="text-3xl font-extrabold text-purple-700 m-0">{{ request.user.profile.lessons_completed|default:0 }}</div>
+                <div class="text-xs text-purple-600 mt-1 m-0 font-medium">Уроков пройдено</div>
+              </div>
+              <div class="text-center p-3 rounded-lg bg-gradient-to-br from-amber-50 to-amber-100 transition-all hover:shadow-md">
+                <div class="text-3xl font-extrabold text-amber-700 m-0">{{ request.user.profile.average_score|default:"0.0" }}</div>
+                <div class="text-xs text-amber-600 mt-1 m-0 font-medium">Средний балл</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="bg-white border border-gray-300 rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
+          <div class="flex justify-between items-center px-6 py-5 border-b border-gray-300 bg-gray-50">
+            <h3 class="text-lg font-bold m-0 flex items-center gap-2">
+              <i class="fas fa-clock text-primary w-[18px] h-[18px]"></i>
+              Последняя активность
+            </h3>
+          </div>
+          <div>
+            <div class="px-6 py-4 border-b border-gray-300 last:border-b-0 transition-all hover:bg-gray-50">
+              <div class="flex justify-between items-center">
+                <div class="flex items-center gap-3 font-medium">
+                  <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-book text-blue-600 text-sm"></i>
+                  </div>
+                  <span class="text-sm">Урок грамматики</span>
+                </div>
+                <span class="text-gray-500 text-xs">2 часа назад</span>
+              </div>
+            </div>
+            <div class="px-6 py-4 border-b border-gray-300 last:border-b-0 transition-all hover:bg-gray-50">
+              <div class="flex justify-between items-center">
+                <div class="flex items-center gap-3 font-medium">
+                  <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-robot text-green-600 text-sm"></i>
+                  </div>
+                  <span class="text-sm">Чат с ИИ</span>
+                </div>
+                <span class="text-gray-500 text-xs">Вчера</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> <!-- /Right Column -->
+    </div>
+  </div>
 </main>
 
 <!-- Goals Modal -->
 <div class="hidden fixed z-50 left-0 top-0 w-full h-full overflow-auto bg-black/50 backdrop-blur-sm" id="goalsModal">
-    <div
-        class="modal-content bg-white my-[5%] mx-auto p-0 rounded-xl max-w-[500px] shadow-2xl animate-[modalFadeIn_0.3s_ease-out]">
-        <div
-            class="flex justify-between items-center px-6 py-6 border-b border-gray-300 bg-gradient-to-r from-gray-50 to-gray-100">
-            <h2 class="text-xl font-bold m-0">
-                <i class="fas fa-target text-primary"></i>
-                Добавить новую цель
-            </h2>
-            <button
-                class="bg-transparent border-none text-xl cursor-pointer text-gray-500 p-2 rounded-full hover:bg-gray-200 hover:text-gray-800 transition-all"
-                onclick="closeModal('goalsModal')">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="p-6">
-            <div class="mb-6">
-                <label class="block mb-2 font-semibold text-gray-800" for="goalTitle">Название цели</label>
-                <input type="text" id="goalTitle"
-                    class="w-full p-3 border border-gray-300 rounded-xl text-base transition-all focus:outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(5,150,105,0.1)]"
-                    placeholder="Например: Сдать TOEFL на 100 баллов" required>
-            </div>
-            <div class="mb-6">
-                <label class="block mb-2 font-semibold text-gray-800" for="goalIcon">Иконка</label>
-                <select id="goalIcon"
-                    class="w-full p-3 border border-gray-300 rounded-xl text-base transition-all focus:outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(5,150,105,0.1)]">
-                    <option value="fas fa-certificate">🏆 Сертификат</option>
-                    <option value="fas fa-comments">💬 Разговорная речь</option>
-                    <option value="fas fa-pen">✏️ Письменная речь</option>
-                    <option value="fas fa-book">📚 Чтение</option>
-                    <option value="fas fa-headphones">🎧 Аудирование</option>
-                    <option value="fas fa-briefcase">💼 Бизнес-английский</option>
-                    <option value="fas fa-plane">✈️ Английский для путешествий</option>
-                    <option value="fas fa-graduation-cap">🎓 Академический английский</option>
-                    <option value="fas fa-star">⭐ Общее улучшение</option>
-                </select>
-            </div>
-            <div class="mb-6">
-                <label class="block mb-2 font-semibold text-gray-800" for="goalStatus">Статус</label>
-                <select id="goalStatus"
-                    class="w-full p-3 border border-gray-300 rounded-xl text-base transition-all focus:outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(5,150,105,0.1)]">
-                    <option value="active">Активная</option>
-                    <option value="planned">Запланированная</option>
-                </select>
-            </div>
-            <div
-                class="flex justify-end gap-3 pt-4 border-t border-gray-300 bg-gray-50 -mx-6 -mb-6 px-6 py-4 rounded-b-xl">
-                <button type="button"
-                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full transition-all duration-300 cursor-pointer bg-white border border-gray-300 text-gray-800 hover:text-primary hover:border-primary hover:shadow-md"
-                    onclick="closeModal('goalsModal')">
-                    Отмена
-                </button>
-                <button type="button" onclick="addGoal()"
-                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full transition-all duration-300 cursor-pointer bg-primary text-white border-none hover:bg-emerald-700 hover:shadow-md">
-                    <i class="fas fa-plus"></i>
-                    Добавить цель
-                </button>
-            </div>
-        </div>
+  <div class="modal-content bg-white my-[5%] mx-auto p-0 rounded-xl max-w-[500px] shadow-2xl animate-[modalFadeIn_0.3s_ease-out]">
+    <div class="flex justify-between items-center px-6 py-6 border-b border-gray-300 bg-gradient-to-r from-gray-50 to-gray-100">
+      <h2 class="text-xl font-bold m-0">
+        <i class="fas fa-target text-primary"></i>
+        Добавить новую цель
+      </h2>
+      <button class="bg-transparent border-none text-xl cursor-pointer text-gray-500 p-2 rounded-full hover:bg-gray-200 hover:text-gray-800 transition-all"
+              onclick="closeModal('goalsModal')">
+        <i class="fas fa-times"></i>
+      </button>
     </div>
+    <div class="p-6">
+      <div class="mb-6">
+        <label class="block mb-2 font-semibold text-gray-800" for="goalTitle">Название цели</label>
+        <input type="text" id="goalTitle"
+               class="w-full p-3 border border-gray-300 rounded-xl text-base transition-all focus:outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(5,150,105,0.1)]"
+               placeholder="Например: Сдать TOEFL на 100 баллов" required>
+      </div>
+      <div class="flex justify-end gap-3 pt-4 border-t border-gray-300 bg-gray-50 -mx-6 -mb-6 px-6 py-4 rounded-b-xl">
+        <button type="button"
+                class="inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full transition-all duration-300 cursor-pointer bg-white border border-gray-300 text-gray-800 hover:text-primary hover:border-primary hover:shadow-md"
+                onclick="closeModal('goalsModal')">
+          Отмена
+        </button>
+        <button type="button" onclick="addGoal()"
+                class="inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full transition-all duration-300 cursor-pointer bg-primary text-white border-none hover:bg-emerald-700 hover:shadow-md">
+          <i class="fas fa-plus"></i>
+          Добавить цель
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Interests Modal -->
-<div class="hidden fixed z-50 left-0 top-0 w-full h-full overflow-auto bg-black/50 backdrop-blur-sm"
-    id="interestsModal">
-    <div
-        class="modal-content bg-white my-[5%] mx-auto p-0 rounded-xl max-w-[500px] shadow-2xl animate-[modalFadeIn_0.3s_ease-out]">
-        <div
-            class="flex justify-between items-center px-6 py-6 border-b border-gray-300 bg-gradient-to-r from-gray-50 to-gray-100">
-            <h2 class="text-xl font-bold m-0">
-                <i class="fas fa-heart text-primary"></i>
-                Изменить интересы
-            </h2>
-            <button
-                class="bg-transparent border-none text-xl cursor-pointer text-gray-500 p-2 rounded-full hover:bg-gray-200 hover:text-gray-800 transition-all"
-                onclick="closeModal('interestsModal')">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="p-6">
-            <div class="mb-6">
-                <label class="block mb-3 font-semibold text-gray-800">Выберите ваши интересы</label>
-                <div id="interestsOptions" class="space-y-3">
-                    <!-- Will be populated by JavaScript -->
-                </div>
-            </div>
-            <div
-                class="flex justify-end gap-3 pt-4 border-t border-gray-300 bg-gray-50 -mx-6 -mb-6 px-6 py-4 rounded-b-xl">
-                <button type="button"
-                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full transition-all duration-300 cursor-pointer bg-white border border-gray-300 text-gray-800 hover:text-primary hover:border-primary hover:shadow-md"
-                    onclick="closeModal('interestsModal')">
-                    Отмена
-                </button>
-                <button type="button" onclick="saveInterests()"
-                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full transition-all duration-300 cursor-pointer bg-primary text-white border-none hover:bg-emerald-700 hover:shadow-md">
-                    <i class="fas fa-save"></i>
-                    Сохранить изменения
-                </button>
-            </div>
-        </div>
+<div class="hidden fixed z-50 left-0 top-0 w-full h-full overflow-auto bg-black/50 backdrop-blur-sm" id="interestsModal">
+  <div class="modal-content bg-white my-[5%] mx-auto p-0 rounded-xl max-w-[500px] shadow-2xl animate-[modalFadeIn_0.3s_ease-out]">
+    <div class="flex justify-between items-center px-6 py-6 border-b border-gray-300 bg-gradient-to-r from-gray-50 to-gray-100">
+      <h2 class="text-xl font-bold m-0">
+        <i class="fas fa-heart text-primary"></i>
+        Изменить интересы
+      </h2>
+      <button class="bg-transparent border-none text-xl cursor-pointer text-gray-500 p-2 rounded-full hover:bg-gray-200 hover:text-gray-800 transition-all"
+              onclick="closeModal('interestsModal')">
+        <i class="fas fa-times"></i>
+      </button>
     </div>
+    <div class="p-6">
+      <div class="mb-6">
+        <label class="block mb-3 font-semibold text-gray-800">Выберите ваши интересы</label>
+        <div id="interestsOptions" class="space-y-3">
+          {% for interest_name in available_interests %}
+            <label class="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+              <input type="checkbox" value="{{ interest_name }}" class="mr-3 h-4 w-4 text-primary"
+                     {% if interest_name in interests_list %}checked{% endif %}>
+              <span>{{ interest_name }}</span>
+            </label>
+          {% empty %}
+            <p class="text-sm text-gray-500">Список интересов пуст.</p>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="flex justify-end gap-3 pt-4 border-t border-gray-300 bg-gray-50 -mx-6 -mb-6 px-6 py-4 rounded-b-xl">
+        <button type="button"
+                class="inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full transition-all duration-300 cursor-pointer bg-white border border-gray-300 text-gray-800 hover:text-primary hover:border-primary hover:shadow-md"
+                onclick="closeModal('interestsModal')">
+          Отмена
+        </button>
+        <button type="button" onclick="saveInterests()"
+                class="inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full transition-all duration-300 cursor-pointer bg-primary text-white border-none hover:bg-emerald-700 hover:shadow-md">
+          <i class="fas fa-save"></i>
+          Сохранить изменения
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 
-<style>
-    @keyframes modalFadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(-50px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-</style>
-
 <script>
-    // Modal functions
-    function openGoalsModal() {
-        document.getElementById('goalsModal').classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
+  // Модалки
+  function openGoalsModal() {
+    document.getElementById('goalsModal').classList.remove('hidden');
+  }
+  function openInterestsModal() {
+    document.getElementById('interestsModal').classList.remove('hidden');
+  }
+  function closeModal(modalId) {
+    document.getElementById(modalId).classList.add('hidden');
+  }
+  function editProfile() {
+    window.location.href = '/profile/edit/';
+  }
+
+  // Получить текущее состояние из UI
+  function getCurrentInterests() {
+    return Array.from(document.querySelectorAll('#interestsGrid [data-interest]'))
+      .map(el => el.dataset.interest.trim())
+      .filter(Boolean);
+  }
+  function getCurrentGoals() {
+    return Array.from(document.querySelectorAll('#goalsList [data-goal]'))
+      .map(el => el.dataset.goal.trim())
+      .filter(Boolean);
+  }
+
+  // Синхронизация скрытых полей
+  function syncHiddenFields() {
+    const interests = getCurrentInterests();
+    const goals = getCurrentGoals();
+    const about = document.getElementById('additionalInfo')?.value || '';
+    document.getElementById('hiddenInterests').value = interests.join(',');
+    document.getElementById('hiddenGoals').value = goals.join(',');
+    document.getElementById('hiddenAbout').value = about;
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    syncHiddenFields();
+  });
+
+  // Цели
+  function addGoal() {
+    const goalTitleEl = document.getElementById('goalTitle');
+    const goalTitle = goalTitleEl.value.trim();
+    if (!goalTitle) return;
+
+    const goalsList = document.getElementById('goalsList');
+    const goalDiv = document.createElement('div');
+    goalDiv.className = 'px-6 py-4 border-b border-gray-300 last:border-b-0 transition-all hover:bg-gray-50';
+    goalDiv.setAttribute('data-goal', goalTitle);
+    goalDiv.innerHTML = `
+      <div class="flex justify-between items-center">
+        <div class="flex items-center gap-3 font-medium">
+          <i class="fas fa-target text-primary w-4"></i>
+          <span>${goalTitle}</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">Активная</div>
+          <span class="cursor-pointer text-gray-500 p-1 rounded transition-colors hover:bg-gray-200 hover:text-gray-800" onclick="removeGoal(this)">
+            <i class="fas fa-trash"></i>
+          </span>
+        </div>
+      </div>
+    `;
+    goalsList.appendChild(goalDiv);
+
+    goalTitleEl.value = '';
+    closeModal('goalsModal');
+
+    // сохранить в БД
+    syncHiddenFields();
+    document.getElementById('profileForm').submit();
+  }
+  function removeGoal(el) {
+    const goalDiv = el.closest('[data-goal]');
+    if (goalDiv) goalDiv.remove();
+    syncHiddenFields();
+    document.getElementById('profileForm').submit();
+  }
+
+  // Интересы
+  function saveInterests() {
+    const checkboxes = document.querySelectorAll('#interestsOptions input:checked');
+    const interests = Array.from(checkboxes).map(cb => cb.value.trim()).filter(Boolean);
+
+    // Обновить теги
+    const grid = document.getElementById('interestsGrid');
+    grid.innerHTML = '';
+    interests.forEach(interest => {
+      const div = document.createElement('div');
+      div.className = 'interest-tag group flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium transition-all hover:shadow-md hover:-translate-y-0.5';
+      div.setAttribute('data-interest', interest);
+      div.innerHTML = `
+        <i class="fas fa-heart w-4"></i>
+        ${interest}
+        <span class="ml-auto cursor-pointer text-gray-500 p-0.5 rounded-full hidden group-hover:inline-block hover:text-gray-800" onclick="removeInterest(this, event)">
+          <i class="fas fa-times"></i>
+        </span>
+      `;
+      grid.appendChild(div);
+    });
+
+    closeModal('interestsModal');
+
+    // сохранить в БД
+    syncHiddenFields();
+    document.getElementById('profileForm').submit();
+  }
+  function removeInterest(el, event) {
+    event.stopPropagation();
+    const tag = el.closest('.interest-tag');
+    if (tag) tag.remove();
+    syncHiddenFields();
+    document.getElementById('profileForm').submit();
+  }
+
+  // О себе
+  function saveAdditionalInfo() {
+    syncHiddenFields();
+    document.getElementById('profileForm').submit();
+  }
+
+  // Закрытие модалок кликом по подложке
+  window.onclick = function(event) {
+    if (event.target.classList.contains('fixed')) {
+      event.target.classList.add('hidden');
     }
-
-    function openInterestsModal() {
-        document.getElementById('interestsModal').classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-        populateInterestsOptions();
-    }
-
-    function closeModal(modalId) {
-        document.getElementById(modalId).classList.add('hidden');
-        document.body.style.overflow = 'auto';
-    }
-
-    function removeGoal(element) {
-        if (confirm('Вы уверены, что хотите удалить эту цель?')) {
-            element.closest('.px-6').style.opacity = '0';
-            element.closest('.px-6').style.transform = 'translateX(-20px)';
-            setTimeout(() => {
-                element.closest('.px-6').remove();
-            }, 300);
-        }
-    }
-
-    function removeInterest(element, event) {
-        event.stopPropagation();
-        if (confirm('Удалить этот интерес?')) {
-            const tag = element.closest('.interest-tag');
-            tag.style.opacity = '0';
-            tag.style.transform = 'scale(0.8)';
-            setTimeout(() => {
-                tag.remove();
-            }, 300);
-        }
-    }
-
-    function saveAdditionalInfo() {
-        const btn = event.target;
-        const originalHTML = btn.innerHTML;
-
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Сохранение...';
-        btn.disabled = true;
-
-        setTimeout(() => {
-            btn.innerHTML = '<i class="fas fa-check"></i> Сохранено!';
-            setTimeout(() => {
-                btn.innerHTML = originalHTML;
-                btn.disabled = false;
-            }, 2000);
-        }, 1000);
-    }
-
-    function editProfile() {
-        alert('Функция редактирования профиля в разработке');
-    }
-
-    function populateInterestsOptions() {
-        const interests = [
-            { id: 'business', name: 'Бизнес-английский', icon: 'fas fa-briefcase', color: 'blue' },
-            { id: 'travel', name: 'Путешествия', icon: 'fas fa-plane', color: 'amber' },
-            { id: 'movies', name: 'Кино', icon: 'fas fa-film', color: 'purple' },
-            { id: 'tech', name: 'Технологии', icon: 'fas fa-laptop-code', color: 'cyan' },
-            { id: 'music', name: 'Музыка', icon: 'fas fa-music', color: 'rose' },
-            { id: 'sport', name: 'Спорт', icon: 'fas fa-running', color: 'emerald' },
-            { id: 'cooking', name: 'Кулинария', icon: 'fas fa-utensils', color: 'yellow' },
-            { id: 'art', name: 'Искусство', icon: 'fas fa-palette', color: 'violet' }
-        ];
-
-        const container = document.getElementById('interestsOptions');
-        const currentInterests = Array.from(document.querySelectorAll('.interest-tag')).map(tag => tag.dataset.interest);
-
-        container.innerHTML = interests.map(interest => `
-            <label class="flex items-center p-3 rounded-lg border border-gray-200 cursor-pointer transition-all hover:border-primary hover:bg-primary/5 ${currentInterests.includes(interest.id) ? 'bg-primary/10 border-primary' : ''}">
-                <input type="checkbox" id="${interest.id}" value="${interest.id}" ${currentInterests.includes(interest.id) ? 'checked' : ''} class="w-5 h-5 cursor-pointer text-primary rounded focus:ring-2 focus:ring-primary">
-                <span class="ml-3 font-medium flex items-center gap-2 flex-1">
-                    <i class="${interest.icon} w-5 text-${interest.color}-600"></i>
-                    ${interest.name}
-                </span>
-            </label>
-        `).join('');
-    }
-
-    // Add goal function
-    function addGoal() {
-        const title = document.getElementById('goalTitle').value;
-        const icon = document.getElementById('goalIcon').value;
-        const status = document.getElementById('goalStatus').value;
-
-        if (!title) {
-            alert('Пожалуйста, введите название цели');
-            return;
-        }
-
-        const goalsList = document.getElementById('goalsList');
-        const newGoal = document.createElement('div');
-        newGoal.className = 'px-6 py-4 border-b border-gray-300 last:border-b-0 transition-all hover:bg-gray-50';
-        newGoal.style.opacity = '0';
-        newGoal.style.transform = 'translateY(-10px)';
-        newGoal.innerHTML = `
-            <div class="flex justify-between items-center">
-                <div class="flex items-center gap-3 font-medium">
-                    <i class="${icon} text-primary w-4"></i>
-                    <span>${title}</span>
-                </div>
-                <div class="flex items-center gap-3">
-                    <div class="px-3 py-1 rounded-full text-xs font-semibold ${status === 'active' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}">${status === 'active' ? 'Активная' : 'Запланированная'}</div>
-                    <span class="cursor-pointer text-gray-500 p-1 rounded transition-colors hover:bg-gray-200 hover:text-gray-800" onclick="removeGoal(this)">
-                        <i class="fas fa-trash"></i>
-                    </span>
-                </div>
-            </div>
-        `;
-        goalsList.appendChild(newGoal);
-
-        setTimeout(() => {
-            newGoal.style.opacity = '1';
-            newGoal.style.transform = 'translateY(0)';
-        }, 10);
-
-        closeModal('goalsModal');
-        document.getElementById('goalTitle').value = '';
-    }
-
-    // Save interests function
-    function saveInterests() {
-        const checkboxes = document.querySelectorAll('#interestsOptions input[type="checkbox"]:checked');
-        const interestsGrid = document.getElementById('interestsGrid');
-
-        const interestData = {
-            'business': { name: 'Бизнес-английский', icon: 'fas fa-briefcase', color: 'blue' },
-            'travel': { name: 'Путешествия', icon: 'fas fa-plane', color: 'amber' },
-            'movies': { name: 'Кино', icon: 'fas fa-film', color: 'purple' },
-            'tech': { name: 'Технологии', icon: 'fas fa-laptop-code', color: 'cyan' },
-            'music': { name: 'Музыка', icon: 'fas fa-music', color: 'rose' },
-            'sport': { name: 'Спорт', icon: 'fas fa-running', color: 'emerald' },
-            'cooking': { name: 'Кулинария', icon: 'fas fa-utensils', color: 'yellow' },
-            'art': { name: 'Искусство', icon: 'fas fa-palette', color: 'violet' }
-        };
-
-        interestsGrid.innerHTML = '';
-        checkboxes.forEach((checkbox, index) => {
-            const id = checkbox.value;
-            const data = interestData[id];
-            const tag = document.createElement('div');
-            tag.className = `interest-tag group flex items-center gap-2 px-4 py-2 bg-${data.color}-100 text-${data.color}-800 rounded-full text-sm font-medium transition-all hover:shadow-md hover:-translate-y-0.5`;
-            tag.dataset.interest = id;
-            tag.style.opacity = '0';
-            tag.style.transform = 'scale(0.8)';
-            tag.innerHTML = `
-                <i class="${data.icon} w-4"></i>
-                ${data.name}
-                <span class="ml-auto cursor-pointer text-gray-500 p-0.5 rounded-full hidden group-hover:inline-block hover:text-gray-800" onclick="removeInterest(this, event)">
-                    <i class="fas fa-times"></i>
-                </span>
-            `;
-            interestsGrid.appendChild(tag);
-
-            setTimeout(() => {
-                tag.style.opacity = '1';
-                tag.style.transform = 'scale(1)';
-            }, 50 * index);
-        });
-
-        closeModal('interestsModal');
-    }
-
-    // Close modal on outside click
-    window.onclick = function (event) {
-        if (event.target.classList.contains('fixed')) {
-            event.target.classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        }
-    }
-
+  }
 </script>
+
+<style>
+  @keyframes modalFadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
 {% endblock %}

@@ -1,62 +1,102 @@
 from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.shortcuts import redirect, render
+from django.contrib.auth.decorators import login_required
 from .forms import LoginForm, RegisterForm
 
 User = get_user_model()
 
+# Статический список интересов (редактируй по необходимости)
+AVAILABLE_INTERESTS = [
+    'Спорт', 'Музыка', 'Кино', 'Путешествия', 'Технологии',
+    'Наука', 'Искусство', 'Литература', 'Кулинария', 'Бизнес'
+]
+
+
 def register_view(request):
-    data = {'form': RegisterForm()}
-    
     if request.method == 'POST':
         form = RegisterForm(request.POST)
-        
         if form.is_valid():
             username = form.cleaned_data['username']
             last_name = form.cleaned_data['last_name']
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
-        
-            user = User.objects.create_user(username=username, first_name=username , last_name=last_name, email=email, password=password)
-            user.save()
-            login(request, user=user)
-            
-            return redirect('/')
-    else:
-        return render(request, 'user/register.html', data)
 
+            user = User.objects.create_user(
+                username=username,
+                first_name=username,  # при желании поменяй на реальное имя
+                last_name=last_name,
+                email=email,
+                password=password
+            )
+            login(request, user)
+            return redirect('/')
+
+        # вернуть форму с ошибками
+        return render(request, 'user/register.html', {'form': form})
+
+    return render(request, 'user/register.html', {'form': RegisterForm()})
 
 
 def login_view(request):
-    data = {'form': LoginForm()}
-    
     if request.method == 'POST':
         form = LoginForm(request.POST)
-        User = get_user_model()
-        
         if form.is_valid():
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
-            
-            print(f'{email}\n{password}')
-                  
-            if User.objects.filter(email=email).exists():
-                user = User.objects.filter(email=email).first()
-                user = authenticate(request, username=user, password=password)
-                
+
+            user_obj = User.objects.filter(email=email).first()
+            if user_obj:
+                # authenticate ожидает username (строку), а не объект User
+                user = authenticate(request, username=user_obj.username, password=password)
                 if user is not None:
-                    login(request, user=user)
+                    login(request, user)
                     return redirect('/')
-        return render(request, 'user/login.html', data)
-    else:  
-        return render(request, 'user/login.html', data)
-    
-    
+
+        # вернуть форму с ошибками
+        return render(request, 'user/login.html', {'form': form})
+
+    return render(request, 'user/login.html', {'form': LoginForm()})
+
+
 def logout_view(request):
     logout(request)
     return redirect('/')
 
+
+@login_required(login_url='login')
 def user_profile_view(request):
-    User = get_user_model()
-    for user in User.objects.all():
-        print(f'{user.username}: {user.profile.interests}')
-    return render(request, 'user/user_profile.html')
+    user = request.user
+    profile = user.profile
+
+    def normalize_csv(s: str) -> str:
+        """
+        Нормализация CSV-строки:
+        - поддержка старого разделителя '|' (заменяем на ',')
+        - трим пробелы, убираем пустые элементы
+        - возвращаем строку, разделённую запятыми
+        """
+        if not s:
+            return ''
+        s = s.replace('|', ',')
+        items = [x.strip() for x in s.split(',') if x.strip()]
+        return ','.join(items)
+
+    if request.method == 'POST':
+        interests = request.POST.get('interests', '')
+        goals = request.POST.get('goals', '')
+        about = request.POST.get('about', '')
+
+        profile.interests = normalize_csv(interests)
+        profile.learning_goals = normalize_csv(goals)
+        profile.about = about.strip()
+        profile.save()
+
+        # сохраняем и возвращаемся на профиль (перезагрузка страницы)
+        return redirect('user_profile')
+
+    context = {
+        'interests_list': profile.get_interests_list(),
+        'goals_list': profile.get_goals_list(),
+        'available_interests': AVAILABLE_INTERESTS,  # подставляется в модалке интересов
+    }
+    return render(request, 'user/user_profile.html', context)

@@ -1,15 +1,16 @@
 {% extends 'main/layout.html' %}
 
 {% block content %}
-<main class="py-8">
-  <div class="max-w-7xl mx-auto px-4">
+<main class="py-10">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Page header -->
     <div class="mb-8">
-      <h1 class="text-3xl font-extrabold text-gray-900 m-0">Личный кабинет</h1>
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight m-0">Личный кабинет</h1>
       <p class="text-base text-gray-600 mt-2 m-0">Управляйте своим профилем и отслеживайте прогресс изучения английского</p>
     </div>
 
-    <!-- Скрытая форма для отправки данных -->
-    <form id="profileForm" method="POST" style="display: none;">
+    <!-- Hidden sync form -->
+    <form id="profileForm" method="POST" class="hidden">
       {% csrf_token %}
       <input type="hidden" name="interests" id="hiddenInterests">
       <input type="hidden" name="goals" id="hiddenGoals">
@@ -20,91 +21,94 @@
       <!-- Left Column -->
       <div class="lg:col-span-2 space-y-6">
         <!-- Personal Information -->
-        <div class="bg-white border border-gray-300 rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
-          <div class="flex justify-between items-center px-6 py-5 border-b border-gray-300 bg-gray-50">
-            <h3 class="text-lg font-bold m-0 flex items-center gap-2">
-              <i class="fas fa-user text-primary w-[18px] h-[18px]"></i>
+        <section class="bg-white rounded-2xl ring-1 ring-gray-200 shadow-sm overflow-hidden transition-transform duration-300 hover:-translate-y-0.5 hover:shadow-lg">
+          <header class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/60">
+            <h3 class="text-lg font-bold m-0 inline-flex items-center gap-2">
+              <i class="fas fa-user text-primary w-[18px] h-[18px]" aria-hidden="true"></i>
               Персональные данные
             </h3>
-            <button onclick="editProfile()"
-              class="inline-flex items-center justify-center gap-2 px-3 py-1.5 font-semibold text-sm rounded-full transition-all duration-300 cursor-pointer bg-white border border-gray-300 text-gray-800 hover:text-primary hover:border-primary hover:-translate-y-0.5 hover:shadow-md">
-              <i class="fas fa-edit"></i>
+            <button type="button" onclick="editProfile()"
+              class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold bg-white ring-1 ring-gray-200 text-gray-800 transition-all hover:text-primary hover:ring-primary hover:-translate-y-0.5 hover:shadow-md">
+              <i class="fas fa-edit" aria-hidden="true"></i>
               Редактировать
             </button>
-          </div>
+          </header>
           <div class="flex items-center gap-4 p-6">
-            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-emerald-700 text-white flex items-center justify-center font-bold text-xl shadow-lg">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-emerald-700 text-white flex items-center justify-center font-bold text-xl shadow-lg ring-2 ring-white">
+              <span class="sr-only">Инициалы пользователя</span>
               {{ request.user.first_name|first|upper|default:"U" }}{{ request.user.last_name|first|upper|default:"" }}
             </div>
             <div>
               <h2 class="m-0 mb-2 text-xl font-bold">{{ request.user.first_name|default:request.user.username }} {{ request.user.last_name }}</h2>
               <p class="my-1 text-base text-gray-800">
-                <i class="fas fa-envelope text-primary w-4 mr-2"></i> {{ request.user.email }}
+                <i class="fas fa-envelope text-primary w-4 mr-2" aria-hidden="true"></i> {{ request.user.email }}
               </p>
               <p class="my-1 text-base text-gray-800">
-                <i class="fas fa-calendar text-primary w-4 mr-2"></i> Зарегистрирован: {{ request.user.date_joined|date:"d E Y" }}
+                <i class="fas fa-calendar text-primary w-4 mr-2" aria-hidden="true"></i> Зарегистрирован: {{ request.user.date_joined|date:"d E Y" }}
               </p>
             </div>
           </div>
-        </div>
+        </section>
 
         <!-- Interests -->
-        <div class="bg-white border border-gray-300 rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
-          <div class="flex justify-between items-center px-6 py-5 border-b border-gray-300 bg-gray-50">
-            <h3 class="text-lg font-bold m-0 flex items-center gap-2">
-              <i class="fas fa-heart text-primary w-[18px] h-[18px]"></i>
+        <section class="bg-white rounded-2xl ring-1 ring-gray-200 shadow-sm overflow-hidden transition-transform duration-300 hover:-translate-y-0.5 hover:shadow-lg">
+          <header class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/60">
+            <h3 class="text-lg font-bold m-0 inline-flex items-center gap-2">
+              <i class="fas fa-heart text-primary w-[18px] h-[18px]" aria-hidden="true"></i>
               Интересы
             </h3>
-            <button onclick="openInterestsModal()"
-              class="inline-flex items-center justify-center gap-2 px-3 py-1.5 font-semibold text-sm rounded-full transition-all duration-300 cursor-pointer bg-white border border-gray-300 text-gray-800 hover:text-primary hover:border-primary hover:-translate-y-0.5 hover:shadow-md">
-              <i class="fas fa-edit"></i>
+            <button type="button" onclick="openInterestsModal()"
+              class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold bg-white ring-1 ring-gray-200 text-gray-800 transition-all hover:text-primary hover:ring-primary hover:-translate-y-0.5 hover:shadow-md">
+              <i class="fas fa-edit" aria-hidden="true"></i>
               Изменить
             </button>
+          </header>
+          <div class="p-6">
+            <div class="flex flex-wrap gap-3" id="interestsGrid">
+              {% for interest in interests_list %}
+                <div class="interest-tag group inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-sm font-medium transition-all hover:shadow-md hover:-translate-y-0.5"
+                     data-interest="{{ interest }}">
+                  <i class="fas fa-heart w-4" aria-hidden="true"></i>
+                  <span>{{ interest }}</span>
+                  <button type="button" class="ml-1 inline-flex items-center justify-center rounded-full p-1 text-gray-500 hover:text-gray-800 hover:bg-blue-100 transition hidden group-hover:inline-flex"
+                          onclick="removeInterest(this, event)" aria-label="Удалить интерес">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                  </button>
+                </div>
+              {% empty %}
+                <p class="text-gray-500 text-sm">Интересы не указаны. Добавьте их, чтобы персонализировать обучение.</p>
+              {% endfor %}
+            </div>
           </div>
-          <div class="flex flex-wrap gap-3 p-4 px-6" id="interestsGrid">
-            {% for interest in interests_list %}
-              <div class="interest-tag group flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium transition-all hover:shadow-md hover:-translate-y-0.5"
-                   data-interest="{{ interest }}">
-                <i class="fas fa-heart w-4"></i>
-                {{ interest }}
-                <span class="ml-auto cursor-pointer text-gray-500 p-0.5 rounded-full hidden group-hover:inline-block hover:text-gray-800"
-                      onclick="removeInterest(this, event)">
-                  <i class="fas fa-times"></i>
-                </span>
-              </div>
-            {% empty %}
-              <p class="text-gray-500 text-sm">Интересы не указаны. Добавьте их, чтобы персонализировать обучение.</p>
-            {% endfor %}
-          </div>
-        </div>
+        </section>
 
         <!-- Goals -->
-        <div class="bg-white border border-gray-300 rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
-          <div class="flex justify-between items-center px-6 py-5 border-b border-gray-300 bg-gray-50">
-            <h3 class="text-lg font-bold m-0 flex items-center gap-2">
-              <i class="fas fa-target text-primary w-[18px] h-[18px]"></i>
+        <section class="bg-white rounded-2xl ring-1 ring-gray-200 shadow-sm overflow-hidden transition-transform duration-300 hover:-translate-y-0.5 hover:shadow-lg">
+          <header class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/60">
+            <h3 class="text-lg font-bold m-0 inline-flex items-center gap-2">
+              <i class="fas fa-target text-primary w-[18px] h-[18px]" aria-hidden="true"></i>
               Цели изучения
             </h3>
-            <button onclick="openGoalsModal()"
-              class="inline-flex items-center justify-center gap-2 px-3 py-1.5 font-semibold text-sm rounded-full transition-all duration-300 cursor-pointer bg-primary text-white border-none hover:bg-emerald-700 hover:shadow-md">
-              <i class="fas fa-plus"></i>
+            <button type="button" onclick="openGoalsModal()"
+              class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold text-white bg-primary hover:bg-emerald-700 transition-all hover:shadow-md">
+              <i class="fas fa-plus" aria-hidden="true"></i>
               Добавить цель
             </button>
-          </div>
-          <div id="goalsList">
+          </header>
+          <div id="goalsList" class="divide-y divide-gray-100">
             {% for goal in goals_list %}
-              <div class="px-6 py-4 border-b border-gray-300 last:border-b-0 transition-all hover:bg-gray-50" data-goal="{{ goal }}">
-                <div class="flex justify-between items-center">
+              <div class="px-6 py-4 transition-colors hover:bg-gray-50" data-goal="{{ goal }}">
+                <div class="flex items-center justify-between">
                   <div class="flex items-center gap-3 font-medium">
-                    <i class="fas fa-target text-primary w-4"></i>
+                    <i class="fas fa-target text-primary w-4" aria-hidden="true"></i>
                     <span>{{ goal }}</span>
                   </div>
                   <div class="flex items-center gap-3">
-                    <div class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">Активная</div>
-                    <span class="cursor-pointer text-gray-500 p-1 rounded transition-colors hover:bg-gray-200 hover:text-gray-800"
-                          onclick="removeGoal(this)">
-                      <i class="fas fa-trash"></i>
-                    </span>
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">Активная</span>
+                    <button type="button" class="text-gray-500 p-1 rounded hover:bg-gray-200 hover:text-gray-800 transition"
+                            onclick="removeGoal(this)" aria-label="Удалить цель">
+                      <i class="fas fa-trash" aria-hidden="true"></i>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -112,209 +116,213 @@
               <div class="px-6 py-4 text-gray-500 text-sm">Цели не установлены. Добавьте цели для более эффективного обучения.</div>
             {% endfor %}
           </div>
-        </div>
+        </section>
 
         <!-- Additional Information -->
-        <div class="bg-white border border-gray-300 rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
-          <div class="flex justify-between items-center px-6 py-5 border-b border-gray-300 bg-gray-50">
-            <h3 class="text-lg font-bold m-0 flex items-center gap-2">
-              <i class="fas fa-sticky-note text-primary w-[18px] h-[18px]"></i>
+        <section class="bg-white rounded-2xl ring-1 ring-gray-200 shadow-sm overflow-hidden transition-transform duration-300 hover:-translate-y-0.5 hover:shadow-lg">
+          <header class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/60">
+            <h3 class="text-lg font-bold m-0 inline-flex items-center gap-2">
+              <i class="fas fa-sticky-note text-primary w-[18px] h-[18px]" aria-hidden="true"></i>
               Дополнительная информация
             </h3>
-            <button onclick="saveAdditionalInfo()"
-              class="inline-flex items-center justify-center gap-2 px-3 py-1.5 font-semibold text-sm rounded-full transition-all duration-300 cursor-pointer bg-white border border-gray-300 text-gray-800 hover:text-primary hover:border-primary hover:-translate-y-0.5 hover:shadow-md">
-              <i class="fas fa-save"></i>
+            <button type="button" onclick="saveAdditionalInfo()"
+              class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold bg-white ring-1 ring-gray-200 text-gray-800 transition-all hover:text-primary hover:ring-primary hover:-translate-y-0.5 hover:shadow-md">
+              <i class="fas fa-save" aria-hidden="true"></i>
               Сохранить
             </button>
-          </div>
-          <div class="p-4 px-6">
+          </header>
+          <div class="p-6">
+            <label for="additionalInfo" class="sr-only">О себе</label>
             <textarea id="additionalInfo"
               placeholder="Расскажите о себе больше, укажите ваши предпочтения в обучении, пожелания или комментарии..."
-              class="w-full min-h-[100px] p-3 border border-gray-300 rounded-xl text-base resize-y focus:outline-none focus:border-primary focus:shadow-[0_0_0_2px_rgba(5,150,105,0.2)] transition-all">{{ request.user.profile.about|default:"" }}</textarea>
+              class="w-full min-h-[112px] p-3 rounded-xl text-base border border-gray-300 resize-y focus:outline-none focus:border-primary focus:ring-2 focus:ring-emerald-200 transition">{{ request.user.profile.about|default:"" }}</textarea>
           </div>
-        </div>
+        </section>
       </div>
 
-      <!-- Right Column (без изменений по логике) -->
-      <div class="space-y-6">
+      <!-- Right Column -->
+      <aside class="space-y-6">
         <!-- Level Status -->
-        <div class="bg-white border border-gray-300 rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
-          <div class="flex justify-between items-center px-6 py-5 border-b border-gray-300 bg-gray-50">
-            <h3 class="text-lg font-bold m-0 flex items-center gap-2">
-              <i class="fas fa-chart-line text-primary w-[18px] h-[18px]"></i>
+        <section class="bg-white rounded-2xl ring-1 ring-gray-200 shadow-sm overflow-hidden transition-transform duration-300 hover:-translate-y-0.5 hover:shadow-lg">
+          <header class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/60">
+            <h3 class="text-lg font-bold m-0 inline-flex items-center gap-2">
+              <i class="fas fa-chart-line text-primary w-[18px] h-[18px]" aria-hidden="true"></i>
               Уровень языка
             </h3>
-          </div>
+          </header>
           <div class="text-center p-6">
             <div class="py-4">
               <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
-                <i class="fas fa-question text-4xl text-gray-400"></i>
+                <i class="fas fa-question text-4xl text-gray-400" aria-hidden="true"></i>
               </div>
               <h4 class="text-lg font-bold text-gray-900 mb-2">Уровень не определён</h4>
               <p class="text-sm text-gray-600 mb-6 px-4">Пройдите тест для определения вашего уровня владения английским языком</p>
               <a href="#"
-                 class="group relative inline-flex items-center justify-center gap-2 px-6 py-3 font-semibold text-base rounded-full bg-gradient-to-r from-primary to-emerald-700 text-white border-none overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 active:brightness-95">
+                 class="group relative inline-flex items-center justify-center gap-2 px-6 py-3 font-semibold text-base rounded-full bg-gradient-to-r from-primary to-emerald-700 text-white overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 active:brightness-95">
                 <span class="absolute inset-0 w-0 bg-emerald-800 transition-all duration-300 group-hover:w-full z-0"></span>
-                <i class="fas fa-clipboard-check relative z-10"></i>
+                <i class="fas fa-clipboard-check relative z-10" aria-hidden="true"></i>
                 <span class="relative z-10">Пройти тест</span>
-                <i class="fas fa-arrow-right relative z-10 transition-transform group-hover:translate-x-1"></i>
+                <i class="fas fa-arrow-right relative z-10 transition-transform group-hover:translate-x-1" aria-hidden="true"></i>
               </a>
             </div>
           </div>
-        </div>
+        </section>
 
         <!-- Quick Stats -->
-        <div class="bg-white border border-gray-300 rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
-            <div class="flex justify-between items-center px-6 py-5 border-b border-gray-300 bg-gray-50">
-                <h3 class="text-lg font-bold m-0 flex items-center gap-2">
-                    <i class="fas fa-trophy text-primary w-[18px] h-[18px]"></i>
-                    Статистика
-                </h3>
+        <section class="bg-white rounded-2xl ring-1 ring-gray-200 shadow-sm overflow-hidden transition-transform duration-300 hover:-translate-y-0.5 hover:shadow-lg">
+          <header class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/60">
+            <h3 class="text-lg font-bold m-0 inline-flex items-center gap-2">
+              <i class="fas fa-trophy text-primary w-[18px] h-[18px]" aria-hidden="true"></i>
+              Статистика
+            </h3>
+          </header>
+          <div class="p-6">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <!-- Days streak -->
+              <div class="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 ring-1 ring-amber-200/60 transition-all hover:shadow-md hover:-translate-y-0.5">
+                <div class="w-10 h-10 rounded-full bg-amber-200 flex items-center justify-center text-amber-800">
+                  <i class="fas fa-fire" aria-hidden="true"></i>
+                </div>
+                <div>
+                  <div class="text-2xl font-extrabold text-amber-800">{{ request.user.profile.days_streak|default:0 }}</div>
+                  <div class="text-xs font-medium text-amber-700/80">Дней</div>
+                </div>
+              </div>
+              <!-- Words learned -->
+              <div class="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100 ring-1 ring-emerald-200/60 transition-all hover:shadow-md hover:-translate-y-0.5">
+                <div class="w-10 h-10 rounded-full bg-emerald-200 flex items-center justify-center text-emerald-800">
+                  <i class="fas fa-language" aria-hidden="true"></i>
+                </div>
+                <div>
+                  <div class="text-2xl font-extrabold text-emerald-800">{{ request.user.profile.words_learned|default:0 }}</div>
+                  <div class="text-xs font-medium text-emerald-700/80">Слов</div>
+                </div>
+              </div>
+              <!-- Lessons completed -->
+              <div class="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100 ring-1 ring-indigo-200/60 transition-all hover:shadow-md hover:-translate-y-0.5">
+                <div class="w-10 h-10 rounded-full bg-indigo-200 flex items-center justify-center text-indigo-800">
+                  <i class="fas fa-book-open" aria-hidden="true"></i>
+                </div>
+                <div>
+                  <div class="text-2xl font-extrabold text-indigo-800">{{ request.user.profile.lessons_completed|default:0 }}</div>
+                  <div class="text-xs font-medium text-indigo-700/80">Уроков</div>
+                </div>
+              </div>
             </div>
-
-            <div class="p-6">
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <!-- Days streak -->
-                <div class="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 ring-1 ring-amber-200/60 transition-all hover:shadow-md hover:-translate-y-0.5">
-                    <div class="w-10 h-10 rounded-full bg-amber-200 flex items-center justify-center text-amber-800">
-                        <i class="fas fa-fire"></i>
-                    </div>
-                    <div>
-                        <div class="text-2xl font-extrabold text-amber-800">{{ request.user.profile.days_streak|default:0 }}</div>
-                        <div class="text-xs font-medium text-amber-700/80">Дней</div>
-                    </div>
-                </div>
-
-                <!-- Words learned -->
-                <div class="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100 ring-1 ring-emerald-200/60 transition-all hover:shadow-md hover:-translate-y-0.5">
-                    <div class="w-10 h-10 rounded-full bg-emerald-200 flex items-center justify-center text-emerald-800">
-                        <i class="fas fa-language"></i>
-                    </div>
-                    <div>
-                        <div class="text-2xl font-extrabold text-emerald-800">{{ request.user.profile.words_learned|default:0 }}</div>
-                        <div class="text-xs font-medium text-emerald-700/80">Слов</div>
-                    </div>
-                </div>
-
-                <!-- Lessons completed -->
-                <div class="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100 ring-1 ring-indigo-200/60 transition-all hover:shadow-md hover:-translate-y-0.5">
-                    <div class="w-10 h-10 rounded-full bg-indigo-200 flex items-center justify-center text-indigo-800">
-                        <i class="fas fa-book-open"></i>
-                    </div>
-                    <div>
-                    <div class="text-2xl font-extrabold text-indigo-800">{{ request.user.profile.lessons_completed|default:0 }}</div>
-                    <div class="text-xs font-medium text-indigo-700/80">Уроков</div>
-                    </div>
-                </div>
-                </div>
-            </div>
-        </div>
+          </div>
+        </section>
 
         <!-- Recent Activity -->
-<div class="bg-white border border-gray-300 rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
-  <div class="flex justify-between items-center px-6 py-5 border-b border-gray-300 bg-gray-50">
-    <h3 class="text-lg font-bold m-0 flex items-center gap-2">
-      <i class="fas fa-clock text-primary w-[18px] h-[18px]"></i>
-      Последняя активность
-    </h3>
-  </div>
-  <div id="recentActivityList">
-    {% for act in recent_activities %}
-      <div class="px-6 py-4 border-b border-gray-300 last:border-b-0 transition-all hover:bg-gray-50" data-activity="{{ forloop.counter }}">
-        <div class="flex justify-between items-center">
-          <div class="flex items-center gap-3 font-medium">
-            <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-              <i class="fas fa-clock text-blue-600 text-sm"></i>
-            </div>
-            <span class="text-sm">{{ act }}</span>
+        <section class="bg-white rounded-2xl ring-1 ring-gray-200 shadow-sm overflow-hidden transition-transform duration-300 hover:-translate-y-0.5 hover:shadow-lg">
+          <header class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/60">
+            <h3 class="text-lg font-bold m-0 inline-flex items-center gap-2">
+              <i class="fas fa-clock text-primary w-[18px] h-[18px]" aria-hidden="true"></i>
+              Последняя активность
+            </h3>
+          </header>
+          <div id="recentActivityList" aria-live="polite">
+            {% for act in recent_activities %}
+              <div class="px-6 py-4 border-b border-gray-100 last:border-b-0 transition-colors hover:bg-gray-50" data-activity="{{ forloop.counter }}">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3 font-medium">
+                    <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                      <i class="fas fa-clock text-blue-600 text-sm" aria-hidden="true"></i>
+                    </div>
+                    <span class="text-sm">{{ act }}</span>
+                  </div>
+                </div>
+              </div>
+            {% empty %}
+              <div class="px-6 py-4 text-gray-500 text-sm">Пока активности нет</div>
+            {% endfor %}
           </div>
-        </div>
-      </div>
-    {% empty %}
-      <div class="px-6 py-4 text-gray-500 text-sm">Пока активности нет</div>
-    {% endfor %}
-  </div>
-</div>
-      </div> <!-- /Right Column -->
+        </section>
+      </aside>
     </div>
   </div>
 </main>
 
 <!-- Goals Modal -->
-<div class="hidden fixed z-50 left-0 top-0 w-full h-full overflow-auto bg-black/50 backdrop-blur-sm" id="goalsModal">
-  <div class="modal-content bg-white my-[5%] mx-auto p-0 rounded-xl max-w-[500px] shadow-2xl animate-[modalFadeIn_0.3s_ease-out]">
-    <div class="flex justify-between items-center px-6 py-6 border-b border-gray-300 bg-gradient-to-r from-gray-50 to-gray-100">
-      <h2 class="text-xl font-bold m-0">
-        <i class="fas fa-target text-primary"></i>
-        Добавить новую цель
-      </h2>
-      <button class="bg-transparent border-none text-xl cursor-pointer text-gray-500 p-2 rounded-full hover:bg-gray-200 hover:text-gray-800 transition-all"
-              onclick="closeModal('goalsModal')">
-        <i class="fas fa-times"></i>
-      </button>
-    </div>
-    <div class="p-6">
-      <div class="mb-6">
-        <label class="block mb-2 font-semibold text-gray-800" for="goalTitle">Название цели</label>
-        <input type="text" id="goalTitle"
-               class="w-full p-3 border border-gray-300 rounded-xl text-base transition-all focus:outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(5,150,105,0.1)]"
-               placeholder="Например: Сдать TOEFL на 100 баллов" required>
+<div id="goalsModal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="goalsModalTitle">
+  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" data-overlay onclick="closeModal('goalsModal')"></div>
+  <div class="relative flex min-h-full items-center justify-center p-4">
+    <div class="w-full max-w-[500px] overflow-hidden rounded-2xl bg-white shadow-2xl motion-safe:animate-[modalFadeIn_0.25s_ease-out]">
+      <div class="flex items-center justify-between px-6 py-6 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-gray-100">
+        <h2 id="goalsModalTitle" class="text-xl font-bold m-0 inline-flex items-center gap-2">
+          <i class="fas fa-target text-primary" aria-hidden="true"></i>
+          Добавить новую цель
+        </h2>
+        <button type="button" class="text-xl text-gray-500 p-2 rounded-full hover:bg-gray-200 hover:text-gray-800 transition"
+                onclick="closeModal('goalsModal')" aria-label="Закрыть модалку">
+          <i class="fas fa-times" aria-hidden="true"></i>
+        </button>
       </div>
-      <div class="flex justify-end gap-3 pt-4 border-t border-gray-300 bg-gray-50 -mx-6 -mb-6 px-6 py-4 rounded-b-xl">
-        <button type="button"
-                class="inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full transition-all duration-300 cursor-pointer bg-white border border-gray-300 text-gray-800 hover:text-primary hover:border-primary hover:shadow-md"
-                onclick="closeModal('goalsModal')">
-          Отмена
-        </button>
-        <button type="button" onclick="addGoal()"
-                class="inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full transition-all duration-300 cursor-pointer bg-primary text-white border-none hover:bg-emerald-700 hover:shadow-md">
-          <i class="fas fa-plus"></i>
-          Добавить цель
-        </button>
+      <div class="p-6">
+        <div class="mb-6">
+          <label class="block mb-2 font-semibold text-gray-800" for="goalTitle">Название цели</label>
+          <input type="text" id="goalTitle"
+                 class="w-full p-3 border border-gray-300 rounded-xl text-base transition-all focus:outline-none focus:border-primary focus:ring-2 focus:ring-emerald-200"
+                 placeholder="Например: Сдать TOEFL на 100 баллов" required>
+        </div>
+        <div class="flex justify-end gap-3 pt-4 border-t border-gray-100 bg-gray-50 -mx-6 -mb-6 px-6 py-4">
+          <button type="button"
+                  class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold bg-white ring-1 ring-gray-200 text-gray-800 transition hover:text-primary hover:ring-primary hover:shadow-md"
+                  onclick="closeModal('goalsModal')">
+            Отмена
+          </button>
+          <button type="button" onclick="addGoal()"
+                  class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold text-white bg-primary hover:bg-emerald-700 transition hover:shadow-md">
+            <i class="fas fa-plus" aria-hidden="true"></i>
+            Добавить цель
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
 <!-- Interests Modal -->
-<div class="hidden fixed z-50 left-0 top-0 w-full h-full overflow-auto bg-black/50 backdrop-blur-sm" id="interestsModal">
-  <div class="modal-content bg-white my-[5%] mx-auto p-0 rounded-xl max-w-[500px] shadow-2xl animate-[modalFadeIn_0.3s_ease-out]">
-    <div class="flex justify-between items-center px-6 py-6 border-b border-gray-300 bg-gradient-to-r from-gray-50 to-gray-100">
-      <h2 class="text-xl font-bold m-0">
-        <i class="fas fa-heart text-primary"></i>
-        Изменить интересы
-      </h2>
-      <button class="bg-transparent border-none text-xl cursor-pointer text-gray-500 p-2 rounded-full hover:bg-gray-200 hover:text-gray-800 transition-all"
-              onclick="closeModal('interestsModal')">
-        <i class="fas fa-times"></i>
-      </button>
-    </div>
-    <div class="p-6">
-      <div class="mb-6">
-        <label class="block mb-3 font-semibold text-gray-800">Выберите ваши интересы</label>
-        <div id="interestsOptions" class="space-y-3">
-          {% for interest_name in available_interests %}
-            <label class="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
-              <input type="checkbox" value="{{ interest_name }}" class="mr-3 h-4 w-4 text-primary"
-                     {% if interest_name in interests_list %}checked{% endif %}>
-              <span>{{ interest_name }}</span>
-            </label>
-          {% empty %}
-            <p class="text-sm text-gray-500">Список интересов пуст.</p>
-          {% endfor %}
-        </div>
+<div id="interestsModal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="interestsModalTitle">
+  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" data-overlay onclick="closeModal('interestsModal')"></div>
+  <div class="relative flex min-h-full items-center justify-center p-4">
+    <div class="w-full max-w-[500px] overflow-hidden rounded-2xl bg-white shadow-2xl motion-safe:animate-[modalFadeIn_0.25s_ease-out]">
+      <div class="flex items-center justify-between px-6 py-6 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-gray-100">
+        <h2 id="interestsModalTitle" class="text-xl font-bold m-0 inline-flex items-center gap-2">
+          <i class="fas fa-heart text-primary" aria-hidden="true"></i>
+          Изменить интересы
+        </h2>
+        <button type="button" class="text-xl text-gray-500 p-2 rounded-full hover:bg-gray-200 hover:text-gray-800 transition"
+                onclick="closeModal('interestsModal')" aria-label="Закрыть модалку">
+          <i class="fas fa-times" aria-hidden="true"></i>
+        </button>
       </div>
-      <div class="flex justify-end gap-3 pt-4 border-t border-gray-300 bg-gray-50 -mx-6 -mb-6 px-6 py-4 rounded-b-xl">
-        <button type="button"
-                class="inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full transition-all duration-300 cursor-pointer bg-white border border-gray-300 text-gray-800 hover:text-primary hover:border-primary hover:shadow-md"
-                onclick="closeModal('interestsModal')">
-          Отмена
-        </button>
-        <button type="button" onclick="saveInterests()"
-                class="inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full transition-all duration-300 cursor-pointer bg-primary text-white border-none hover:bg-emerald-700 hover:shadow-md">
-          <i class="fas fa-save"></i>
-          Сохранить изменения
-        </button>
+      <div class="p-6">
+        <div class="mb-6">
+          <span class="block mb-3 font-semibold text-gray-800">Выберите ваши интересы</span>
+          <div id="interestsOptions" class="space-y-2">
+            {% for interest_name in available_interests %}
+              <label class="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" value="{{ interest_name }}" class="mr-3 h-4 w-4 text-primary"
+                       {% if interest_name in interests_list %}checked{% endif %}>
+                <span>{{ interest_name }}</span>
+              </label>
+            {% empty %}
+              <p class="text-sm text-gray-500">Список интересов пуст.</p>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="flex justify-end gap-3 pt-4 border-t border-gray-100 bg-gray-50 -mx-6 -mb-6 px-6 py-4">
+          <button type="button"
+                  class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold bg-white ring-1 ring-gray-200 text-gray-800 transition hover:text-primary hover:ring-primary hover:shadow-md"
+                  onclick="closeModal('interestsModal')">
+            Отмена
+          </button>
+          <button type="button" onclick="saveInterests()"
+                  class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold text-white bg-primary hover:bg-emerald-700 transition hover:shadow-md">
+            <i class="fas fa-save" aria-hidden="true"></i>
+            Сохранить изменения
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -324,6 +332,7 @@
   // Модалки
   function openGoalsModal() {
     document.getElementById('goalsModal').classList.remove('hidden');
+    setTimeout(() => document.getElementById('goalTitle')?.focus(), 50);
   }
   function openInterestsModal() {
     document.getElementById('interestsModal').classList.remove('hidden');
@@ -334,6 +343,16 @@
   function editProfile() {
     window.location.href = '/profile/edit/';
   }
+
+  // Поддержка закрытия по Esc
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      ['goalsModal', 'interestsModal'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el && !el.classList.contains('hidden')) el.classList.add('hidden');
+      });
+    }
+  });
 
   // Получить текущее состояние из UI
   function getCurrentInterests() {
@@ -369,19 +388,19 @@
 
     const goalsList = document.getElementById('goalsList');
     const goalDiv = document.createElement('div');
-    goalDiv.className = 'px-6 py-4 border-b border-gray-300 last:border-b-0 transition-all hover:bg-gray-50';
+    goalDiv.className = 'px-6 py-4 transition-colors hover:bg-gray-50 border-t border-gray-100 first:border-t-0';
     goalDiv.setAttribute('data-goal', goalTitle);
     goalDiv.innerHTML = `
-      <div class="flex justify-between items-center">
+      <div class="flex items-center justify-between">
         <div class="flex items-center gap-3 font-medium">
-          <i class="fas fa-target text-primary w-4"></i>
+          <i class="fas fa-target text-primary w-4" aria-hidden="true"></i>
           <span>${goalTitle}</span>
         </div>
         <div class="flex items-center gap-3">
-          <div class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">Активная</div>
-          <span class="cursor-pointer text-gray-500 p-1 rounded transition-colors hover:bg-gray-200 hover:text-gray-800" onclick="removeGoal(this)">
-            <i class="fas fa-trash"></i>
-          </span>
+          <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">Активная</span>
+          <button type="button" class="text-gray-500 p-1 rounded hover:bg-gray-200 hover:text-gray-800 transition" onclick="removeGoal(this)" aria-label="Удалить цель">
+            <i class="fas fa-trash" aria-hidden="true"></i>
+          </button>
         </div>
       </div>
     `;
@@ -411,14 +430,14 @@
     grid.innerHTML = '';
     interests.forEach(interest => {
       const div = document.createElement('div');
-      div.className = 'interest-tag group flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium transition-all hover:shadow-md hover:-translate-y-0.5';
+      div.className = 'interest-tag group inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-sm font-medium transition-all hover:shadow-md hover:-translate-y-0.5';
       div.setAttribute('data-interest', interest);
       div.innerHTML = `
-        <i class="fas fa-heart w-4"></i>
-        ${interest}
-        <span class="ml-auto cursor-pointer text-gray-500 p-0.5 rounded-full hidden group-hover:inline-block hover:text-gray-800" onclick="removeInterest(this, event)">
-          <i class="fas fa-times"></i>
-        </span>
+        <i class="fas fa-heart w-4" aria-hidden="true"></i>
+        <span>${interest}</span>
+        <button type="button" class="ml-1 inline-flex items-center justify-center rounded-full p-1 text-gray-500 hover:text-gray-800 hover:bg-blue-100 transition hidden group-hover:inline-flex" onclick="removeInterest(this, event)" aria-label="Удалить интерес">
+          <i class="fas fa-times" aria-hidden="true"></i>
+        </button>
       `;
       grid.appendChild(div);
     });
@@ -443,17 +462,18 @@
     document.getElementById('profileForm').submit();
   }
 
-  // Закрытие модалок кликом по подложке
-  window.onclick = function(event) {
-    if (event.target.classList.contains('fixed')) {
-      event.target.classList.add('hidden');
+  // Закрытие модалок по клику на подложку (дополнительно к data-overlay)
+  window.addEventListener('click', function(event) {
+    if (event.target?.hasAttribute?.('data-overlay')) {
+      const parent = event.target.closest('[role="dialog"]');
+      if (parent?.id) closeModal(parent.id);
     }
-  }
+  });
 </script>
 
 <style>
   @keyframes modalFadeIn {
-    from { opacity: 0; transform: translateY(-20px); }
+    from { opacity: 0; transform: translateY(-12px); }
     to { opacity: 1; transform: translateY(0); }
   }
 </style>

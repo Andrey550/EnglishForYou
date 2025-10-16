@@ -69,17 +69,17 @@ def user_profile_view(request):
     profile = user.profile
 
     def normalize_csv(s: str) -> str:
-        """
-        Нормализация CSV-строки:
-        - поддержка старого разделителя '|' (заменяем на ',')
-        - трим пробелы, убираем пустые элементы
-        - возвращаем строку, разделённую запятыми
-        """
         if not s:
             return ''
         s = s.replace('|', ',')
         items = [x.strip() for x in s.split(',') if x.strip()]
         return ','.join(items)
+
+    def csv_to_list(s: str):
+        if not s:
+            return []
+        s = s.replace('|', ',')
+        return [x.strip() for x in s.split(',') if x.strip()]
 
     if request.method == 'POST':
         interests = request.POST.get('interests', '')
@@ -91,12 +91,12 @@ def user_profile_view(request):
         profile.about = about.strip()
         profile.save()
 
-        # сохраняем и возвращаемся на профиль (перезагрузка страницы)
         return redirect('user_profile')
 
     context = {
         'interests_list': profile.get_interests_list(),
         'goals_list': profile.get_goals_list(),
-        'available_interests': AVAILABLE_INTERESTS,  # подставляется в модалке интересов
+        'available_interests': AVAILABLE_INTERESTS,  # твоя константа
+        'recent_activities': csv_to_list(profile.last_activity)[:5],  # <= новые данные
     }
     return render(request, 'user/user_profile.html', context)

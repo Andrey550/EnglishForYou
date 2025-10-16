@@ -165,69 +165,76 @@
 
         <!-- Quick Stats -->
         <div class="bg-white border border-gray-300 rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
-          <div class="flex justify-between items-center px-6 py-5 border-b border-gray-300 bg-gray-50">
-            <h3 class="text-lg font-bold m-0 flex items-center gap-2">
-              <i class="fas fa-trophy text-primary w-[18px] h-[18px]"></i>
-              Статистика
-            </h3>
-          </div>
-          <div class="p-4 px-6">
-            <div class="grid grid-cols-2 gap-4 mb-4">
-              <div class="text-center p-3 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 transition-all hover:shadow-md">
-                <div class="text-3xl font-extrabold text-blue-700 m-0">{{ request.user.profile.days_streak|default:0 }}</div>
-                <div class="text-xs text-blue-600 mt-1 m-0 font-medium">Дней подряд</div>
-              </div>
-              <div class="text-center p-3 rounded-lg bg-gradient-to-br from-green-50 to-green-100 transition-all hover:shadow-md">
-                <div class="text-3xl font-extrabold text-green-700 m-0">{{ request.user.profile.words_learned|default:0 }}</div>
-                <div class="text-xs text-green-600 mt-1 m-0 font-medium">Выученных слов</div>
-              </div>
+            <div class="flex justify-between items-center px-6 py-5 border-b border-gray-300 bg-gray-50">
+                <h3 class="text-lg font-bold m-0 flex items-center gap-2">
+                    <i class="fas fa-trophy text-primary w-[18px] h-[18px]"></i>
+                    Статистика
+                </h3>
             </div>
-            <div class="grid grid-cols-2 gap-4">
-              <div class="text-center p-3 rounded-lg bg-gradient-to-br from-purple-50 to-purple-100 transition-all hover:shadow-md">
-                <div class="text-3xl font-extrabold text-purple-700 m-0">{{ request.user.profile.lessons_completed|default:0 }}</div>
-                <div class="text-xs text-purple-600 mt-1 m-0 font-medium">Уроков пройдено</div>
-              </div>
-              <div class="text-center p-3 rounded-lg bg-gradient-to-br from-amber-50 to-amber-100 transition-all hover:shadow-md">
-                <div class="text-3xl font-extrabold text-amber-700 m-0">{{ request.user.profile.average_score|default:"0.0" }}</div>
-                <div class="text-xs text-amber-600 mt-1 m-0 font-medium">Средний балл</div>
-              </div>
+
+            <div class="p-6">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <!-- Days streak -->
+                <div class="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 ring-1 ring-amber-200/60 transition-all hover:shadow-md hover:-translate-y-0.5">
+                    <div class="w-10 h-10 rounded-full bg-amber-200 flex items-center justify-center text-amber-800">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-extrabold text-amber-800">{{ request.user.profile.days_streak|default:0 }}</div>
+                        <div class="text-xs font-medium text-amber-700/80">Дней</div>
+                    </div>
+                </div>
+
+                <!-- Words learned -->
+                <div class="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100 ring-1 ring-emerald-200/60 transition-all hover:shadow-md hover:-translate-y-0.5">
+                    <div class="w-10 h-10 rounded-full bg-emerald-200 flex items-center justify-center text-emerald-800">
+                        <i class="fas fa-language"></i>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-extrabold text-emerald-800">{{ request.user.profile.words_learned|default:0 }}</div>
+                        <div class="text-xs font-medium text-emerald-700/80">Слов</div>
+                    </div>
+                </div>
+
+                <!-- Lessons completed -->
+                <div class="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100 ring-1 ring-indigo-200/60 transition-all hover:shadow-md hover:-translate-y-0.5">
+                    <div class="w-10 h-10 rounded-full bg-indigo-200 flex items-center justify-center text-indigo-800">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div>
+                    <div class="text-2xl font-extrabold text-indigo-800">{{ request.user.profile.lessons_completed|default:0 }}</div>
+                    <div class="text-xs font-medium text-indigo-700/80">Уроков</div>
+                    </div>
+                </div>
+                </div>
             </div>
-          </div>
         </div>
 
         <!-- Recent Activity -->
-        <div class="bg-white border border-gray-300 rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
-          <div class="flex justify-between items-center px-6 py-5 border-b border-gray-300 bg-gray-50">
-            <h3 class="text-lg font-bold m-0 flex items-center gap-2">
-              <i class="fas fa-clock text-primary w-[18px] h-[18px]"></i>
-              Последняя активность
-            </h3>
-          </div>
-          <div>
-            <div class="px-6 py-4 border-b border-gray-300 last:border-b-0 transition-all hover:bg-gray-50">
-              <div class="flex justify-between items-center">
-                <div class="flex items-center gap-3 font-medium">
-                  <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                    <i class="fas fa-book text-blue-600 text-sm"></i>
-                  </div>
-                  <span class="text-sm">Урок грамматики</span>
-                </div>
-                <span class="text-gray-500 text-xs">2 часа назад</span>
-              </div>
+<div class="bg-white border border-gray-300 rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
+  <div class="flex justify-between items-center px-6 py-5 border-b border-gray-300 bg-gray-50">
+    <h3 class="text-lg font-bold m-0 flex items-center gap-2">
+      <i class="fas fa-clock text-primary w-[18px] h-[18px]"></i>
+      Последняя активность
+    </h3>
+  </div>
+  <div id="recentActivityList">
+    {% for act in recent_activities %}
+      <div class="px-6 py-4 border-b border-gray-300 last:border-b-0 transition-all hover:bg-gray-50" data-activity="{{ forloop.counter }}">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center gap-3 font-medium">
+            <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+              <i class="fas fa-clock text-blue-600 text-sm"></i>
             </div>
-            <div class="px-6 py-4 border-b border-gray-300 last:border-b-0 transition-all hover:bg-gray-50">
-              <div class="flex justify-between items-center">
-                <div class="flex items-center gap-3 font-medium">
-                  <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                    <i class="fas fa-robot text-green-600 text-sm"></i>
-                  </div>
-                  <span class="text-sm">Чат с ИИ</span>
-                </div>
-                <span class="text-gray-500 text-xs">Вчера</span>
-              </div>
-            </div>
+            <span class="text-sm">{{ act }}</span>
           </div>
         </div>
+      </div>
+    {% empty %}
+      <div class="px-6 py-4 text-gray-500 text-sm">Пока активности нет</div>
+    {% endfor %}
+  </div>
+</div>
       </div> <!-- /Right Column -->
     </div>
   </div>

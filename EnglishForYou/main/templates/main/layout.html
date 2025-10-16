@@ -2,152 +2,231 @@
 
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EnglishForYou - Изучайте английский с ИИ</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        primary: '#059669',
-                    }
-                }
-            }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EnglishForYou - Изучайте английский с ИИ</title>
+
+  <!-- Fonts & Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            primary: '#059669',
+          }
         }
-    </script>
-    <style>
-        @keyframes pulse-shadow {
-            0% {
-                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
-            }
+      }
+    }
+  </script>
 
-            70% {
-                box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
-            }
+  <style>
+    @keyframes pulse-shadow {
+      0% { box-shadow: 0 0 0 0 rgba(255,255,255,.4); }
+      70% { box-shadow: 0 0 0 10px rgba(255,255,255,0); }
+      100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+    }
+    .btn-dark-animated:hover { animation: pulse-shadow 1s infinite; }
 
-            100% {
-                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
-            }
-        }
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in-down { animation: fadeInDown .45s ease-out; }
 
-        .btn-dark-animated:hover {
-            animation: pulse-shadow 1s infinite;
-        }
+    /* Состояние хедера при скролле */
+    header[data-scrolled="true"] {
+      box-shadow: 0 4px 20px rgba(2, 6, 23, 0.06);
+      background-color: rgba(255,255,255,0.9);
+    }
 
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .fade-in-down {
-            animation: fadeInDown 0.5s ease-out;
-        }
-    </style>
+    /* Анимация появления мобильного меню */
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .slide-down { animation: slideDown .22s ease-out; }
+  </style>
 </head>
 
-<body class="font-sans bg-gradient-to-b from-white to-gray-50 antialiased">
-    <!-- Header / Topbar -->
-    <header class="sticky top-0 z-20 backdrop-blur-md bg-white/75 border-b border-black/[0.06] fade-in-down">
-        <div class="flex items-center h-16 w-11/12 max-w-7xl mx-auto gap-4">
-            <!-- Brand Logo -->
-            <a href="{% url 'home' %}"
-                class="inline-flex items-center gap-2 transition-transform hover:scale-110 group">
-                <div
-                    class="w-6 h-6 rounded bg-primary text-white grid place-items-center font-bold text-sm transition-transform duration-300 ease-in-out group-hover:rotate-360">
-                    EFY
-                </div>
-                <span class="font-extrabold text-xl">EnglishForYou</span>
+<body class="font-sans bg-gradient-to-b from-white to-gray-50 text-slate-900 antialiased">
+  <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-50 focus:bg-white focus:text-primary focus:px-3 focus:py-2 focus:rounded-md">
+    Перейти к основному содержимому
+  </a>
+
+  <!-- Header -->
+  <header id="siteHeader" class="sticky top-0 z-40 backdrop-blur-md bg-white/70 border-b border-black/5 fade-in-down transition-shadow" data-scrolled="false">
+    <div class="max-w-7xl mx-auto h-16 px-4 sm:px-6 lg:px-8 flex items-center gap-4">
+      <!-- Brand -->
+      <a href="{% url 'home' %}" class="inline-flex items-center gap-3 group">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-emerald-700 text-white grid place-items-center font-black text-xs shadow-sm transition-transform group-hover:-translate-y-0.5">
+          EFY
+        </div>
+        <span class="font-extrabold text-lg sm:text-xl tracking-tight">
+          EnglishForYou
+        </span>
+      </a>
+
+      <!-- Desktop Nav -->
+      <nav class="hidden lg:flex items-center gap-2 mx-auto">
+        <a href="#"
+           class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-white border border-gray-300 text-gray-800 transition-all hover:-translate-y-0.5 hover:shadow-md hover:text-primary hover:border-primary focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
+          <i class="fa-solid fa-book-open text-gray-500"></i>
+          Словарь
+        </a>
+        <a href="#"
+           class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-white border border-gray-300 text-gray-800 transition-all hover:-translate-y-0.5 hover:shadow-md hover:text-primary hover:border-primary focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
+          <i class="fa-solid fa-graduation-cap text-gray-500"></i>
+          Уроки
+        </a>
+        <a href="#"
+           class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-white border border-gray-300 text-gray-800 transition-all hover:-translate-y-0.5 hover:shadow-md hover:text-primary hover:border-primary focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
+          <i class="fa-solid fa-robot text-gray-500"></i>
+          Чат с ботом
+        </a>
+      </nav>
+
+      <!-- Desktop Actions -->
+      <div class="hidden md:flex items-center gap-2 ml-auto lg:ml-0">
+        {% if request.user.is_authenticated %}
+          <a href="{% url 'logout' %}"
+             class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-white border border-gray-300 text-gray-800 transition-all hover:-translate-y-0.5 hover:shadow-md hover:text-primary hover:border-primary focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            Выйти
+          </a>
+        {% else %}
+          <a href="{% url 'login' %}"
+             class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-white border border-gray-300 text-gray-800 transition-all hover:-translate-y-0.5 hover:shadow-md hover:text-primary hover:border-primary focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
+            <i class="fa-solid fa-right-to-bracket"></i>
+            Войти
+          </a>
+        {% endif %}
+
+        {% if request.user.is_authenticated %}
+          <a href="{% url 'user_profile' %}"
+             class="group relative inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold bg-black text-white border border-black overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-md hover:brightness-110 active:brightness-95 btn-dark-animated focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
+            <span class="absolute inset-0 w-0 bg-primary transition-all duration-300 group-hover:w-full z-0"></span>
+            <span class="relative z-10">Привет, {{ request.user }}</span>
+            <i class="fas fa-arrow-right relative z-10 transition-transform group-hover:translate-x-1"></i>
+          </a>
+        {% else %}
+          <a href="{% url 'register' %}"
+             class="group relative inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold bg-black text-white border border-black overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-md hover:brightness-110 active:brightness-95 btn-dark-animated focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
+            <span class="absolute inset-0 w-0 bg-primary transition-all duration-300 group-hover:w-full z-0"></span>
+            <span class="relative z-10">Начать обучение</span>
+            <i class="fas fa-arrow-right relative z-10 transition-transform group-hover:translate-x-1"></i>
+          </a>
+        {% endif %}
+      </div>
+
+      <!-- Mobile menu button -->
+      <button id="mobileMenuButton" class="lg:hidden ml-auto p-2.5 rounded-lg text-gray-700 hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2" aria-label="Открыть меню">
+        <i class="fas fa-bars text-xl"></i>
+      </button>
+    </div>
+
+    <!-- Mobile menu panel -->
+    <div id="mobileMenuOverlay" class="lg:hidden hidden fixed inset-0 z-30 bg-black/40"></div>
+    <div id="mobileMenu" class="lg:hidden hidden fixed inset-x-0 top-16 z-40 slide-down">
+      <div class="mx-4 rounded-2xl border border-gray-200 bg-white shadow-xl overflow-hidden">
+        <nav class="flex flex-col divide-y divide-gray-100">
+          <a href="#" class="flex items-center gap-3 px-5 py-3 text-sm font-semibold hover:bg-gray-50">
+            <i class="fa-solid fa-book-open text-gray-500"></i> Словарь
+          </a>
+          <a href="#" class="flex items-center gap-3 px-5 py-3 text-sm font-semibold hover:bg-gray-50">
+            <i class="fa-solid fa-graduation-cap text-gray-500"></i> Уроки
+          </a>
+          <a href="#" class="flex items-center gap-3 px-5 py-3 text-sm font-semibold hover:bg-gray-50">
+            <i class="fa-solid fa-robot text-gray-500"></i> Чат с ботом
+          </a>
+        </nav>
+        <div class="p-4 flex gap-2">
+          {% if request.user.is_authenticated %}
+            <a href="{% url 'user_profile' %}" class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full text-sm font-semibold text-white bg-primary hover:bg-emerald-700 transition">
+              <i class="fa-solid fa-user-circle"></i>
+              Кабинет
             </a>
-
-            <!-- Navigation Buttons -->
-            <nav class="hidden lg:flex items-center gap-2.5 m-auto">
-                <a href="#"
-                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full bg-white border border-gray-300 text-gray-800 transition-all hover:-translate-y-0.5 hover:shadow-md hover:text-primary hover:border-primary active:bg-gray-100 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
-                    Словарь
-                </a>
-                <a href="#"
-                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full bg-white border border-gray-300 text-gray-800 transition-all hover:-translate-y-0.5 hover:shadow-md hover:text-primary hover:border-primary active:bg-gray-100 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
-                    Уроки
-                </a>
-                <a href="#"
-                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full bg-white border border-gray-300 text-gray-800 transition-all hover:-translate-y-0.5 hover:shadow-md hover:text-primary hover:border-primary active:bg-gray-100 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
-                    Чат с ботом
-                </a>
-            </nav>
-
-            <!-- Action Buttons -->
-            <div class="hidden md:flex items-center gap-2.5 ml-auto lg:ml-0">
-                {% if request.user.is_authenticated %}
-                <a href="{% url 'logout' %}"
-                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full bg-white border border-gray-300 text-gray-800 transition-all hover:-translate-y-0.5 hover:shadow-md hover:text-primary hover:border-primary active:bg-gray-100 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
-                    Выйти
-                </a>
-                {% else %}
-                <a href="{% url 'login' %}"
-                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full bg-white border border-gray-300 text-gray-800 transition-all hover:-translate-y-0.5 hover:shadow-md hover:text-primary hover:border-primary active:bg-gray-100 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
-                    Войти
-                </a>
-                {% endif %}
-
-
-
-                {% if request.user.is_authenticated %}
-                <a href="{% url 'user_profile' %}"
-                    class="group relative inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full bg-black text-white border border-black overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-md hover:brightness-115 btn-dark-animated active:brightness-95 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
-                    <span
-                        class="absolute inset-0 w-0 bg-primary transition-all duration-300 group-hover:w-full z-0"></span>
-                    <span class="relative z-10">Привет, {{ request.user }}</span>
-                    <i class="fas fa-arrow-right relative z-10 transition-transform group-hover:translate-x-1"></i>
-                </a>
-                {% else %}
-                <a href="{% url 'register' %}"
-                    class="group relative inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-full bg-black text-white border border-black overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-md hover:brightness-115 btn-dark-animated active:brightness-95 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
-                    <span
-                        class="absolute inset-0 w-0 bg-primary transition-all duration-300 group-hover:w-full z-0"></span>
-                    <span class="relative z-10">Начать обучение</span>
-                    <i class="fas fa-arrow-right relative z-10 transition-transform group-hover:translate-x-1"></i>
-                </a>
-                {% endif %}
-
-
-            </div>
-
-            <!-- Mobile Menu Button -->
-            <button class="lg:hidden ml-auto p-2 text-gray-700 hover:bg-gray-100 rounded-lg">
-                <i class="fas fa-bars text-xl"></i>
-            </button>
+            <a href="{% url 'logout' %}" class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-white border border-gray-300 text-gray-800 hover:-translate-y-0.5 hover:shadow-md transition">
+              <i class="fa-solid fa-right-from-bracket"></i>
+              Выйти
+            </a>
+          {% else %}
+            <a href="{% url 'login' %}" class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-white border border-gray-300 text-gray-800 hover:-translate-y-0.5 hover:shadow-md transition">
+              <i class="fa-solid fa-right-to-bracket"></i>
+              Войти
+            </a>
+            <a href="{% url 'register' %}" class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full text-sm font-semibold text-white bg-black hover:brightness-110 transition">
+              <i class="fa-solid fa-rocket"></i>
+              Начать
+            </a>
+          {% endif %}
         </div>
-    </header>
+      </div>
+    </div>
+  </header>
 
-    {% block content %}
+  {% block content %}
+  {% endblock %}
 
-    {% endblock %}
+  <!-- Footer -->
+  <footer class="mt-16 border-t border-gray-200/80 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8 py-10 text-center">
+      <div class="flex items-center justify-center gap-3 mb-3">
+        <div class="w-6 h-6 rounded-md bg-primary text-white grid place-items-center text-[10px] font-black">EFY</div>
+        <span class="font-semibold text-gray-800">EnglishForYou</span>
+      </div>
+      <p class="text-gray-500 text-sm">
+        © 2025 EnglishAI. Все права защищены. Создано с <span class="text-red-500">❤️</span> для эффективного изучения английского языка.
+      </p>
+    </div>
+  </footer>
 
-    <!-- Footer -->
-    <footer class="border-t border-gray-300 py-8 bg-gray-50">
-        <div class="max-w-6xl mx-auto px-8 text-gray-500 text-sm text-center">
-            <p>© 2025 EnglishAI. Все права защищены. Создано с <span class="text-red-500">❤️</span> для эффективного
-                изучения английского языка.</p>
-        </div>
-    </footer>
+  <script>
+    // Sticky header shadow on scroll
+    (function() {
+      const header = document.getElementById('siteHeader');
+      const onScroll = () => {
+        const scrolled = window.scrollY > 4;
+        header?.setAttribute('data-scrolled', scrolled ? 'true' : 'false');
+      };
+      onScroll();
+      window.addEventListener('scroll', onScroll, { passive: true });
+    })();
 
+    // Mobile menu toggle
+    (function() {
+      const btn = document.getElementById('mobileMenuButton');
+      const panel = document.getElementById('mobileMenu');
+      const overlay = document.getElementById('mobileMenuOverlay');
+
+      function openMenu() {
+        panel.classList.remove('hidden');
+        overlay.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        btn.setAttribute('aria-expanded', 'true');
+      }
+      function closeMenu() {
+        panel.classList.add('hidden');
+        overlay.classList.add('hidden');
+        document.body.style.overflow = '';
+        btn.setAttribute('aria-expanded', 'false');
+      }
+
+      btn?.addEventListener('click', () => {
+        const isOpen = !panel.classList.contains('hidden');
+        isOpen ? closeMenu() : openMenu();
+      });
+      overlay?.addEventListener('click', closeMenu);
+      window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
+    })();
+  </script>
 </body>
-
 </html>

@@ -1,68 +1,146 @@
 {% extends 'main/layout.html' %}
 
 {% block content %}
-<main class="px-4 max-w-[80vw] mx-auto min-h-screen">
-    <div class="flex justify-center items-center min-h-[calc(100vh-65px)] py-8 px-4">
-        <div class="bg-white rounded-xl shadow-lg p-10 w-full max-w-[420px] border border-gray-300 animate-fadeInUp">
-            <div class="text-center mb-8">
-                <h1 class="text-3xl font-extrabold text-gray-900 mb-2 tracking-tight">Войти в аккаунт</h1>
-                <p class="text-gray-600 m-0 text-base">С возвращением в EnglishForYou</p>
-            </div>
+<main id="main" class="relative">
+    <!-- Декорный фон -->
+    <div aria-hidden="true"
+        class="pointer-events-none absolute inset-x-0 -top-20 -z-10 h-64 bg-gradient-to-b from-primary/10 to-transparent blur-2xl">
+    </div>
 
-            <form class="mb-6" id="loginForm" method="post">
-                {% csrf_token %}
-                <div class="mb-6">
-                    <label for="email" class="flex items-center gap-2 font-semibold text-sm text-gray-800 mb-2">
-                        <i class="fas fa-envelope text-primary w-4"></i>
-                        Email адрес
-                    </label>
-                    {{ form.email }}
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-center items-center min-h-[calc(100vh-8rem)] py-10">
+            <div
+                class="w-full max-w-md bg-white rounded-2xl ring-1 ring-gray-200 shadow-xl p-8 sm:p-10 animate-[fadeInUp_0.35s_ease-out]">
+                <!-- Header -->
+                <div class="text-center mb-8">
+                    <h1 class="text-3xl font-extrabold text-gray-900 mb-2 tracking-tight">Войти в аккаунт</h1>
+                    <p class="text-gray-600 m-0 text-base">С возвращением в EnglishForYou</p>
                 </div>
 
-                <div class="mb-6">
-                    <label for="password" class="flex items-center gap-2 font-semibold text-sm text-gray-800 mb-2">
-                        <i class="fas fa-lock text-primary w-4"></i>
-                        Пароль
-                    </label>
-                    <div class="relative">
-                        {{ form.password }}
-                        <i class="fas fa-eye absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-gray-400 transition-colors duration-300 hover:text-primary"
-                            id="passwordToggle"></i>
+                <!-- Non-field errors -->
+                {% if form.non_field_errors %}
+                <div class="mb-5 rounded-lg border border-red-200 bg-red-50 text-red-700 px-4 py-3 text-sm">
+                    {{ form.non_field_errors }}
+                </div>
+                {% endif %}
+
+                <!-- Form -->
+                <form id="loginForm" method="post" class="space-y-5">
+                    {% csrf_token %}
+
+                    <!-- Email -->
+                    <div>
+                        <label for="{{ form.email.id_for_label }}"
+                            class="flex items-center gap-2 font-semibold text-sm text-gray-800 mb-2">
+                            <i class="fas fa-envelope text-primary w-4" aria-hidden="true"></i>
+                            Email адрес
+                        </label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+                        {% endif %}
                     </div>
+
+                    <!-- Password -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label for="{{ form.password.id_for_label }}"
+                                class="flex items-center gap-2 font-semibold text-sm text-gray-800">
+                                <i class="fas fa-lock text-primary w-4" aria-hidden="true"></i>
+                                Пароль
+                            </label>
+                            <a href="#" class="text-sm text-gray-500 hover:text-primary">Забыли пароль?</a>
+                        </div>
+                        <div class="relative">
+                            {{ form.password }}
+                            <button type="button" id="passwordToggle"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 inline-flex items-center justify-center w-9 h-9 text-gray-400 hover:text-primary rounded-md focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
+                                aria-label="Показать пароль" aria-pressed="false">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        {% if form.password.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.password.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+
+                    <button type="submit"
+                        class="group relative w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-black text-white rounded-lg font-semibold overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-md hover:brightness-110 active:brightness-95 disabled:opacity-70 disabled:cursor-not-allowed">
+                        <span
+                            class="absolute inset-0 w-0 bg-primary transition-all duration-300 group-hover:w-full z-0"></span>
+                        <span class="relative z-10 inline-flex items-center gap-2">
+                            <i class="fas fa-sign-in-alt" aria-hidden="true"></i>
+                            <span>Войти</span>
+                            <i class="fa-solid fa-spinner fa-spin hidden" id="loginSpinner" aria-hidden="true"></i>
+                        </span>
+                    </button>
+                </form>
+
+                <!-- Footer -->
+                <div class="text-center text-gray-600 text-sm mt-6">
+                    Нет аккаунта?
+                    <a href="{% url 'register' %}"
+                        class="text-primary font-semibold hover:underline">Зарегистрироваться</a>
                 </div>
-
-                <button type="submit"
-                    class="group relative w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-black text-white rounded-lg font-semibold overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-md hover:brightness-115 btn-dark-animated active:brightness-95 disabled:opacity-70 disabled:cursor-not-allowed">
-                    <span
-                        class="absolute top-0 left-0 w-0 h-full bg-primary transition-all duration-300 group-hover:w-full z-0"></span>
-                    <i class="fas fa-sign-in-alt relative z-10"></i>
-                    <span class="relative z-10">Войти</span>
-                </button>
-            </form>
-
-            <div class="text-center text-gray-600 text-sm">
-                Нет аккаунта? <a href="{% url 'register' %}"
-                    class="text-primary no-underline font-semibold transition-colors duration-300 hover:text-primary-700 hover:underline">Зарегистрироваться</a>
             </div>
         </div>
     </div>
 </main>
 
+<!-- Page-only scripts -->
 <script>
-    // Показать/скрыть пароль
-    document.getElementById('passwordToggle').addEventListener('click', function () {
-        const passwordInput = document.getElementById('password');
-        const icon = this;
+    // Тоггл пароля (находим поле надёжным способом)
+    (function () {
+        const toggleBtn = document.getElementById('passwordToggle');
+        const formEl = document.getElementById('loginForm');
 
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            icon.classList.remove('fa-eye');
-            icon.classList.add('fa-eye-slash');
-        } else {
-            passwordInput.type = 'password';
-            icon.classList.remove('fa-eye-slash');
-            icon.classList.add('fa-eye');
+        function findPasswordInput() {
+            return formEl.querySelector('input[type="password"], input[name="password"], input[id*="password"]');
         }
-    });
+
+        toggleBtn?.addEventListener('click', function () {
+            const pwd = findPasswordInput();
+            if (!pwd) return;
+
+            const icon = this.querySelector('i');
+            const isHidden = pwd.type === 'password';
+            pwd.type = isHidden ? 'text' : 'password';
+            this.setAttribute('aria-pressed', String(isHidden));
+
+            if (icon) {
+                icon.classList.toggle('fa-eye', !isHidden);
+                icon.classList.toggle('fa-eye-slash', isHidden);
+            }
+        });
+
+        // Прелоадер на сабмите и дизейбл кнопки
+        formEl?.addEventListener('submit', function () {
+            const btn = this.querySelector('button[type="submit"]');
+            const spinner = document.getElementById('loginSpinner');
+            if (btn) btn.disabled = true;
+            if (spinner) spinner.classList.remove('hidden');
+        });
+
+        // Автофокус на email
+        window.addEventListener('DOMContentLoaded', () => {
+            const email = formEl?.querySelector('input[type="email"], input[name="email"], input[id*="email"]');
+            email?.focus();
+        });
+    })();
 </script>
+
+<style>
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
 {% endblock %}

@@ -8,11 +8,16 @@ class ProfileInline(admin.StackedInline):
     model = Profile
     can_delete = False
     verbose_name_plural = 'Дополнительная информация'
-    fields = ('about',)
     
-    # Важно! Это позволит создавать профиль автоматически
-    def get_or_create_profile(self, obj):
-        return Profile.objects.get_or_create(user=obj)
+    # Группируем поля для удобства
+    fieldsets = (
+        ('Личная информация', {
+            'fields': ('about', 'interests', 'learning_goals', 'language_level')
+        }),
+        ('Статистика', {
+            'fields': ('days_streak', 'words_learned', 'lessons_completed', 'last_activity')
+        }),
+    )
 
 
 class UserAdmin(BaseUserAdmin):

@@ -1,0 +1,441 @@
+{% extends 'main/layout.html' %}
+
+{% block content %}
+<main id="main" class="relative min-h-screen py-10">
+    <!-- Декоративный фон -->
+    <div aria-hidden="true"
+        class="pointer-events-none absolute inset-x-0 -top-20 -z-10 h-64 bg-gradient-to-b from-primary/10 to-transparent blur-2xl">
+    </div>
+
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header с таймером и прогрессом -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between mb-4 flex-wrap gap-4">
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight m-0">
+                        Тест на определение уровня
+                    </h1>
+                    <p class="text-sm text-gray-600 mt-1 m-0">
+                        Отвечайте внимательно, вернуться к предыдущим вопросам нельзя
+                    </p>
+                </div>
+
+                <!-- Таймер -->
+                <div class="flex items-center gap-3 px-5 py-3 rounded-xl bg-white ring-1 ring-gray-200 shadow-sm">
+                    <i class="fas fa-clock text-primary text-xl" aria-hidden="true"></i>
+                    <div>
+                        <div class="text-xs text-gray-500 font-medium">Осталось времени</div>
+                        <div id="timer" class="text-2xl font-bold text-gray-900" data-time="{{ time_remaining }}">
+                            {{ time_remaining_formatted }} <!-- 👈 Без фильтра -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Прогресс бар -->
+            <div class="relative">
+                <div class="h-3 bg-gray-200 rounded-full overflow-hidden">
+                    <div id="progressBar"
+                        class="h-full bg-gradient-to-r from-primary to-emerald-700 transition-all duration-500 ease-out"
+                        style="width: {{ progress_percentage }}%">
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-2">
+                    <span class="text-sm font-medium text-gray-600">
+                        Вопрос {{ current_question }} из {{ total_questions }}
+                    </span>
+                    <span class="text-sm font-medium text-primary">
+                        {{ progress_percentage }}% завершено
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Предупреждения о времени -->
+        {% if time_warning == 'critical' %}
+        <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg animate-pulse">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-exclamation-triangle text-red-600 text-xl" aria-hidden="true"></i>
+                <div>
+                    <h4 class="font-bold text-red-900 m-0">Внимание! Осталась 1 минута</h4>
+                    <p class="text-sm text-red-800 mt-1 m-0">Поторопитесь завершить тест</p>
+                </div>
+            </div>
+        </div>
+        {% elif time_warning == 'low' %}
+        <div class="mb-6 p-4 bg-amber-50 border-l-4 border-amber-500 rounded-lg">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-clock text-amber-600 text-xl" aria-hidden="true"></i>
+                <div>
+                    <h4 class="font-bold text-amber-900 m-0">Осталось 5 минут</h4>
+                    <p class="text-sm text-amber-800 mt-1 m-0">Рекомендуем ускориться</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Форма с вопросом -->
+        <form id="testForm" method="POST" action="{% url 'user_test:question' %}">
+            {% csrf_token %}
+            <input type="hidden" name="question_number" value="{{ current_question }}">
+            <input type="hidden" name="question_id" value="{{ question.id }}">
+
+            <!-- Карточка вопроса -->
+            <div
+                class="bg-white rounded-2xl ring-1 ring-gray-200 shadow-sm overflow-hidden transition-all duration-300 animate-[fadeIn_0.3s_ease-out]">
+                <div class="px-6 py-5 border-b border-gray-100 bg-gray-50/60">
+                    <div class="flex items-start justify-between gap-4">
+                        <h3 class="text-lg font-bold text-gray-900 m-0">
+                            <span
+                                class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary text-sm font-bold mr-3">
+                                {{ current_question }}
+                            </span>
+                            {{ question.question_text }}
+                        </h3>
+                        <span
+                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold 
+              {% if question.question_type == 'single' %}bg-blue-100 text-blue-700{% elif question.question_type == 'multiple' %}bg-purple-100 text-purple-700{% else %}bg-amber-100 text-amber-700{% endif %}">
+                            <i class="fas {% if question.question_type == 'single' %}fa-check-circle{% elif question.question_type == 'multiple' %}fa-check-double{% else %}fa-keyboard{% endif %}"
+                                aria-hidden="true"></i>
+                            {% if question.question_type == 'single' %}
+                            Один ответ
+                            {% elif question.question_type == 'multiple' %}
+                            Несколько ответов
+                            {% else %}
+                            Свободный ответ
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="p-6">
+                    <!-- Одиночный выбор (radio) -->
+                    {% if question.question_type == 'single' %}
+                    <div class="space-y-3">
+                        {% for option in question.options %}
+                        <label
+                            class="flex items-center p-4 rounded-xl border-2 border-gray-200 cursor-pointer transition-all hover:border-primary hover:bg-primary/5 has-[:checked]:border-primary has-[:checked]:bg-primary/5 has-[:checked]:ring-2 has-[:checked]:ring-primary/20">
+                            <input type="radio" name="answer" value="{{ forloop.counter0 }}"
+                                class="w-5 h-5 text-primary focus:ring-2 focus:ring-primary" required>
+                            <span class="ml-3 text-base font-medium text-gray-900">{{ option }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Множественный выбор (checkbox) -->
+                    {% elif question.question_type == 'multiple' %}
+                    <div class="space-y-3">
+                        {% for option in question.options %}
+                        <label
+                            class="flex items-center p-4 rounded-xl border-2 border-gray-200 cursor-pointer transition-all hover:border-primary hover:bg-primary/5 has-[:checked]:border-primary has-[:checked]:bg-primary/5 has-[:checked]:ring-2 has-[:checked]:ring-primary/20">
+                            <input type="checkbox" name="answer" value="{{ forloop.counter0 }}"
+                                class="w-5 h-5 text-primary rounded focus:ring-2 focus:ring-primary">
+                            <span class="ml-3 text-base font-medium text-gray-900">{{ option }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    <p class="mt-3 text-sm text-gray-500">
+                        <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>
+                        Выберите все правильные варианты
+                    </p>
+
+                    <!-- Текстовый ввод -->
+                    {% elif question.question_type == 'text' %}
+                    <input type="text" name="answer" id="textAnswer"
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl text-base transition-all focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 placeholder:text-gray-400"
+                        placeholder="Введите ваш ответ здесь..." required autocomplete="off">
+                    <p class="mt-3 text-sm text-gray-500">
+                        <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>
+                        Введите ответ одним словом или фразой
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Кнопки навигации -->
+            <div
+                class="mt-8 flex items-center justify-between gap-4 p-6 bg-white rounded-2xl ring-1 ring-gray-200 shadow-sm flex-wrap">
+                <div class="text-center flex-1 min-w-[200px]">
+                    <p class="text-sm text-gray-600 mb-1">Сохраняйте спокойствие и отвечайте честно</p>
+                    <p class="text-xs text-gray-500">Результаты помогут подобрать подходящую программу</p>
+                </div>
+
+                <div class="flex gap-3 flex-wrap justify-center">
+                    <button type="submit" name="action" value="next"
+                        class="group relative inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold bg-primary text-white overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-md hover:bg-emerald-700 active:brightness-95">
+                        <span class="relative z-10">Далее</span>
+                        <i class="fas fa-arrow-right relative z-10 transition-transform group-hover:translate-x-1"
+                            aria-hidden="true"></i>
+                    </button>
+
+                    {% if can_finish %}
+                    <button type="button" onclick="confirmFinish()"
+                        class="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold bg-white ring-1 ring-gray-300 text-gray-800 transition-all hover:text-primary hover:ring-primary hover:-translate-y-0.5 hover:shadow-md">
+                        <i class="fas fa-flag-checkered" aria-hidden="true"></i>
+                        Завершить досрочно
+                    </button>
+                    {% else %}
+                    <button type="button" disabled title="Необходимо ответить минимум на 10 вопросов"
+                        class="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold bg-gray-100 text-gray-400 cursor-not-allowed">
+                        <i class="fas fa-flag-checkered" aria-hidden="true"></i>
+                        Завершить досрочно
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+</main>
+
+<!-- Loading screen -->
+<div id="loadingOverlay"
+    class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl p-8 text-center max-w-md mx-4 shadow-2xl">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+            <i class="fas fa-spinner fa-spin text-3xl text-primary" aria-hidden="true"></i>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 mb-2">Загрузка следующего вопроса...</h3>
+        <p class="text-sm text-gray-600">ИИ подбирает вопрос под ваш уровень</p>
+    </div>
+</div>
+
+<!-- Модальное окно подтверждения завершения -->
+<div id="finishModal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeFinishModal()"></div>
+    <div class="relative flex min-h-full items-center justify-center p-4">
+        <div class="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl">
+            <div class="p-6">
+                <div class="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-amber-100">
+                    <i class="fas fa-flag-checkered text-amber-600 text-2xl" aria-hidden="true"></i>
+                </div>
+                <h2 class="text-xl font-bold text-center text-gray-900 mb-2">Завершить тест досрочно?</h2>
+                <p class="text-center text-gray-600 mb-6">
+                    Вы ответили на <strong>{{ current_question }} из {{ total_questions }}</strong> вопросов.
+                    Результаты будут рассчитаны на основе отвеченных вопросов.
+                </p>
+
+                <div class="flex gap-3">
+                    <button type="button" onclick="closeFinishModal()"
+                        class="flex-1 px-5 py-3 rounded-full text-sm font-semibold bg-white ring-1 ring-gray-300 text-gray-800 transition hover:text-primary hover:ring-primary">
+                        Продолжить тест
+                    </button>
+                    <button type="button" onclick="finishTest()"
+                        class="flex-1 px-5 py-3 rounded-full text-sm font-semibold bg-primary text-white transition hover:bg-emerald-700">
+                        Да, завершить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно таймаута -->
+<div id="timeoutModal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+    <div class="relative flex min-h-full items-center justify-center p-4">
+        <div class="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl">
+            <div class="p-6">
+                <div class="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-red-100">
+                    <i class="fas fa-clock text-red-600 text-2xl" aria-hidden="true"></i>
+                </div>
+                <h2 class="text-xl font-bold text-center text-gray-900 mb-2">Время истекло!</h2>
+                <p class="text-center text-gray-600 mb-6">
+                    К сожалению, время на прохождение теста закончилось.
+                    Тест будет автоматически завершён через <span id="autoSubmitCounter">3</span> секунд.
+                </p>
+
+                <button type="button" onclick="submitTimeout()"
+                    class="w-full px-5 py-3 rounded-full text-sm font-semibold bg-primary text-white transition hover:bg-emerald-700">
+                    Перейти к результатам
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Конфигурация
+    let timeRemaining = parseInt(document.getElementById('timer').dataset.time);
+    let timerInterval;
+
+    // Инициализация при загрузке
+    document.addEventListener('DOMContentLoaded', () => {
+        startTimer();
+        preventAccidentalExit();
+        autofocusFirstInput();
+    });
+
+    // Таймер
+    function startTimer() {
+        updateTimerDisplay();
+
+        timerInterval = setInterval(() => {
+            timeRemaining--;
+            updateTimerDisplay();
+
+            // Предупреждение за 5 минут
+            if (timeRemaining === 300) {
+                showTimeWarning('low');
+            }
+
+            // Предупреждение за 1 минуту
+            if (timeRemaining === 60) {
+                showTimeWarning('critical');
+            }
+
+            // Время истекло
+            if (timeRemaining <= 0) {
+                clearInterval(timerInterval);
+                handleTimeout();
+            }
+        }, 1000);
+    }
+
+    function updateTimerDisplay() {
+        const minutes = Math.floor(timeRemaining / 60);
+        const seconds = timeRemaining % 60;
+        const timerEl = document.getElementById('timer');
+        timerEl.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+        // Изменение цвета при малом времени
+        if (timeRemaining <= 60) {
+            timerEl.classList.add('text-red-600');
+            timerEl.classList.remove('text-gray-900', 'text-amber-600');
+        } else if (timeRemaining <= 300) {
+            timerEl.classList.add('text-amber-600');
+            timerEl.classList.remove('text-gray-900', 'text-red-600');
+        }
+    }
+
+    function showTimeWarning(type) {
+        // Можно добавить уведомление или звук
+        console.log(`Time warning: ${type}`);
+    }
+
+    // Обработка таймаута
+    function handleTimeout() {
+        document.getElementById('timeoutModal').classList.remove('hidden');
+
+        let countdown = 3;
+        const counterEl = document.getElementById('autoSubmitCounter');
+
+        const countdownInterval = setInterval(() => {
+            countdown--;
+            counterEl.textContent = countdown;
+
+            if (countdown <= 0) {
+                clearInterval(countdownInterval);
+                submitTimeout();
+            }
+        }, 1000);
+    }
+
+    function submitTimeout() {
+        const form = document.getElementById('testForm');
+        const timeoutInput = document.createElement('input');
+        timeoutInput.type = 'hidden';
+        timeoutInput.name = 'timeout';
+        timeoutInput.value = 'true';
+        form.appendChild(timeoutInput);
+
+        showLoadingScreen();
+        form.submit();
+    }
+
+    // Модальное окно завершения
+    function confirmFinish() {
+        document.getElementById('finishModal').classList.remove('hidden');
+    }
+
+    function closeFinishModal() {
+        document.getElementById('finishModal').classList.add('hidden');
+    }
+
+    function finishTest() {
+        const form = document.getElementById('testForm');
+
+        // Добавляем скрытое поле для обозначения досрочного завершения
+        const finishInput = document.createElement('input');
+        finishInput.type = 'hidden';
+        finishInput.name = 'action';
+        finishInput.value = 'finish';
+        form.appendChild(finishInput);
+
+        showLoadingScreen();
+        form.submit();
+    }
+
+    // Loading screen
+    function showLoadingScreen() {
+        document.getElementById('loadingOverlay').classList.remove('hidden');
+    }
+
+    // Отправка формы
+    document.getElementById('testForm').addEventListener('submit', (e) => {
+        // Проверка, что ответ выбран
+        const questionType = '{{ question.question_type }}';
+
+        if (questionType === 'single') {
+            const selected = document.querySelector('input[name="answer"]:checked');
+            if (!selected) {
+                e.preventDefault();
+                alert('Пожалуйста, выберите ответ');
+                return;
+            }
+        } else if (questionType === 'multiple') {
+            const selected = document.querySelectorAll('input[name="answer"]:checked');
+            if (selected.length === 0) {
+                e.preventDefault();
+                alert('Пожалуйста, выберите хотя бы один ответ');
+                return;
+            }
+        } else if (questionType === 'text') {
+            const textInput = document.getElementById('textAnswer');
+            if (!textInput.value.trim()) {
+                e.preventDefault();
+                alert('Пожалуйста, введите ответ');
+                return;
+            }
+        }
+
+        showLoadingScreen();
+    });
+
+    // Предотвращение случайного закрытия
+    function preventAccidentalExit() {
+        window.addEventListener('beforeunload', (e) => {
+            e.preventDefault();
+            e.returnValue = 'Ваш прогресс будет потерян. Вы уверены, что хотите покинуть страницу?';
+        });
+    }
+
+    // Автофокус на первом input
+    function autofocusFirstInput() {
+        const firstInput = document.querySelector('input[type="radio"], input[type="checkbox"], input[type="text"]');
+        if (firstInput) {
+            firstInput.focus();
+        }
+    }
+
+    // Закрытие модалок по Esc
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeFinishModal();
+        }
+    });
+</script>
+
+<style>
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+{% endblock %}

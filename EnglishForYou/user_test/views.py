@@ -1,4 +1,797 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.utils import timezone
 
-def user_test_intro_view(request):
-    return render(request, 'user_test/user_test_intro.html')
+from .models import TestSession, Question, Answer, TopicScore
+
+import json
+
+
+# ===== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ =====
+
+def get_time_remaining(session):
+    """Вычисляет оставшееся время в секундах (по умолчанию 30 минут)."""
+    if session.status != 'in_progress':
+        return 0
+
+    started_at = getattr(session, 'started_at', None)
+    if not started_at:
+        elapsed = 0
+    else:
+        elapsed = (timezone.now() - started_at).total_seconds()
+
+    remaining = 1800 - elapsed  # 30 мин = 1800 сек
+    return max(0, int(remaining))
+
+
+def get_time_warning(time_remaining):
+    """Определяет тип предупреждения о времени."""
+    if time_remaining <= 60:
+        return 'critical'  # Менее 1 минуты
+    elif time_remaining <= 300:
+        return 'low'  # Менее 5 минут
+    return None
+
+
+def format_time(seconds):
+    """Форматирует секунды в MM:SS."""
+    seconds = int(seconds or 0)
+    minutes = seconds // 60
+    secs = seconds % 60
+    return f"{minutes}:{secs:02d}"
+
+
+def check_session_timeout(session):
+    """Проверяет, не истекло ли время сессии, и завершает её, если истекло."""
+    if session.status != 'in_progress':
+        return False
+
+    if get_time_remaining(session) <= 0:
+        if hasattr(session, 'timeout'):
+            session.timeout()
+        else:
+            session.status = 'timeout'
+            session.save()
+        return True
+
+    return False
+
+
+def get_user_answer(request, question):
+    """Извлекает ответ пользователя из POST с учётом типа вопроса."""
+    qtype = question.question_type
+
+    if qtype == 'single':
+        answer = request.POST.get('answer')
+        return answer if answer not in (None, '') else None
+
+    elif qtype == 'multiple':
+        answers = request.POST.getlist('answer')
+        return answers if answers else None
+
+    elif qtype == 'text':
+        answer = request.POST.get('answer', '').strip()
+        return answer if answer else None
+
+    return None
+
+
+def check_answer(question, user_answer):
+    """Проверяет правильность ответа (универсальная нормализация типов)."""
+    correct = getattr(question, 'correct_answer', None)
+    qtype = question.question_type
+
+    if qtype == 'single':
+        if user_answer is None or correct is None:
+            return False
+        return str(user_answer).strip() == str(correct).strip()
+
+    elif qtype == 'multiple':
+        if user_answer is None or correct is None:
+            return False
+        if not isinstance(correct, list):
+            correct = [correct]
+        if not isinstance(user_answer, list):
+            user_answer = [user_answer]
+        correct_set = {str(x).strip() for x in correct}
+        user_set = {str(x).strip() for x in user_answer}
+        return user_set == correct_set
+
+    elif qtype == 'text':
+        if user_answer is None or correct is None:
+            return False
+        if not isinstance(correct, list):
+            correct_list = [correct]
+        else:
+            correct_list = correct
+        ua = str(user_answer).strip().lower()
+        return ua in [str(c).strip().lower() for c in correct_list]
+
+    return False
+
+
+def update_topic_score(session, topic, is_correct):
+    """Обновляет статистику по теме (безопасно, даже если add_answer отсутствует)."""
+    topic_score, _ = TopicScore.objects.get_or_create(session=session, topic=topic)
+    if hasattr(topic_score, 'add_answer'):
+        topic_score.add_answer(is_correct)
+    else:
+        if hasattr(topic_score, 'questions_asked'):
+            topic_score.questions_asked = (topic_score.questions_asked or 0) + 1
+        if is_correct and hasattr(topic_score, 'correct_answers'):
+            topic_score.correct_answers = (topic_score.correct_answers or 0) + 1
+        topic_score.save()
+
+
+def update_test_state(session, question, is_correct):
+    """Обновляет состояние теста: последние темы, оценка уровня, список заданных вопросов."""
+    test_state = session.test_state or {}
+
+    # Последние темы
+    recent_topics = test_state.get('recent_topics', [])
+    topic_code = getattr(question.topic, 'code', None)
+    if topic_code:
+        if topic_code not in recent_topics:
+            recent_topics.append(topic_code)
+            recent_topics = recent_topics[-10:]
+    test_state['recent_topics'] = recent_topics
+
+    # Простая коррекция оценочного уровня вверх/вниз
+    current_level = test_state.get('estimated_level', 'B1')
+    levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
+    try:
+        current_idx = levels.index(current_level)
+    except ValueError:
+        current_idx = 2  # B1 по умолчанию
+
+    if is_correct and current_idx < len(levels) - 1:
+        test_state['estimated_level'] = levels[current_idx + 1]
+    elif not is_correct and current_idx > 0:
+        test_state['estimated_level'] = levels[current_idx - 1]
+
+    # Список показанных вопросов
+    used_ids = test_state.get('question_ids', [])
+    if question.id not in used_ids:
+        used_ids.append(question.id)
+    test_state['question_ids'] = used_ids
+
+    session.test_state = test_state
+
+
+def analyze_session_simple(session):
+    """Простой анализ результатов (временная функция)."""
+    percentage = session.percentage
+
+    if percentage >= 90:
+        level = 'C2'
+    elif percentage >= 80:
+        level = 'C1'
+    elif percentage >= 70:
+        level = 'B2'
+    elif percentage >= 60:
+        level = 'B1'
+    elif percentage >= 50:
+        level = 'A2'
+    else:
+        level = 'A1'
+
+    category_scores = {}
+    for category in ['grammar', 'vocabulary', 'reading', 'usage']:
+        topics = TopicScore.objects.filter(session=session, topic__category=category)
+        if topics.exists():
+            total_correct = sum(t.correct_answers for t in topics)
+            total_asked = sum(t.questions_asked for t in topics)
+            category_scores[f'{category}_score'] = int((total_correct / total_asked) * 100) if total_asked > 0 else 0
+        else:
+            category_scores[f'{category}_score'] = percentage
+
+    return {
+        'level': level,
+        **category_scores
+    }
+
+
+def finish_test_automatically(request, session):
+    """Автоматическое завершение теста и запись результатов."""
+    results = analyze_session_simple(session)
+
+    session.determined_level = results['level']
+    session.grammar_score = results.get('grammar_score', 0)
+    session.vocabulary_score = results.get('vocabulary_score', 0)
+    session.reading_score = results.get('reading_score', 0)
+    session.usage_score = results.get('usage_score', 0)
+
+    if hasattr(session, 'complete'):
+        session.complete()
+    else:
+        session.status = 'completed'
+        session.save()
+
+    # Обновляем профиль пользователя
+    profile = getattr(request.user, 'profile', None)
+    if profile:
+        profile.language_level = results['level']
+        profile.save()
+
+    # Очищаем Django session
+    if 'test_session_id' in request.session:
+        del request.session['test_session_id']
+
+    messages.success(request, f'Тест завершён! Ваш уровень: {results["level"]}')
+    return redirect('user_test:results', session_id=session.id)
+
+
+# ===== ВЬЮХИ =====
+
+@login_required(login_url='login')
+def test_intro_view(request):
+    """Приветственная страница перед началом теста."""
+    active_session = TestSession.objects.filter(
+        user=request.user,
+        status='in_progress'
+    ).first()
+
+    if active_session:
+        # Проверяем истечение времени через флаг модели или через вспомогательную функцию
+        is_expired_attr = getattr(active_session, 'is_expired', None)
+        if is_expired_attr is True or (is_expired_attr is None and get_time_remaining(active_session) <= 0):
+            if hasattr(active_session, 'timeout'):
+                active_session.timeout()
+            else:
+                active_session.status = 'timeout'
+                active_session.save()
+            messages.warning(request, 'Ваш предыдущий тест был завершён по таймауту.')
+        else:
+            messages.info(request, 'У вас есть незавершённый тест. Хотите продолжить?')
+            context = {
+                'has_active_session': True,
+                'active_session': active_session
+            }
+            return render(request, 'user_test/test_intro.html', context)
+
+    return render(request, 'user_test/test_intro.html', {'has_active_session': False})
+
+
+@login_required(login_url='login')
+def start_test_view(request):
+    """Создание новой тестовой сессии и старт теста."""
+    if request.method != 'POST':
+        return redirect('user_test:intro')
+
+    if not request.POST.get('agree'):
+        messages.error(request, 'Необходимо согласиться с правилами теста.')
+        return redirect('user_test:intro')
+
+    # Завершаем активные сессии
+    TestSession.objects.filter(user=request.user, status='in_progress').update(status='abandoned')
+
+    # Создаём новую сессию
+    session = TestSession.objects.create(
+        user=request.user,
+        status='in_progress',
+        test_state={
+            'current_question': 0,
+            'estimated_level': 'B1',
+            'level_confidence': 0.5,
+            'recent_topics': [],
+            'difficulty_trend': 'stable',
+            'question_ids': [],
+        }
+    )
+
+    # Сохраняем session_id в Django session
+    request.session['test_session_id'] = session.id
+    request.session['test_started_at'] = timezone.now().isoformat()
+
+    return redirect('user_test:question')
+
+
+@login_required(login_url='login')
+def test_question_view(request):
+    """Отображение и обработка вопросов теста."""
+    session_id = request.session.get('test_session_id')
+    if not session_id:
+        messages.error(request, 'Сессия теста не найдена. Начните тест заново.')
+        return redirect('user_test:intro')
+
+    session = get_object_or_404(TestSession, id=session_id, user=request.user)
+
+    if session.status != 'in_progress':
+        return redirect('user_test:results', session_id=session.id)
+
+    # Проверка таймаута (через поле модели и/или вспомогательную функцию)
+    if getattr(session, 'is_expired', False):
+        if hasattr(session, 'timeout'):
+            session.timeout()
+        else:
+            session.status = 'timeout'
+            session.save()
+        return redirect('user_test:timeout')
+
+    if check_session_timeout(session):
+        return redirect('user_test:timeout')
+
+    if request.method == 'POST':
+        return process_answer(request, session)
+
+    return show_question(request, session)
+
+
+def show_question(request, session):
+    """Показывает следующий вопрос пользователю."""
+    # Проверяем, не завершён ли тест (30 вопросов)
+    if session.total_questions >= 30:
+        messages.info(request, 'Вы ответили на все 30 вопросов. Тест завершён!')
+        return finish_test_automatically(request, session)
+
+    # Состояние теста
+    test_state = session.test_state or {}
+    estimated_level = test_state.get('estimated_level', 'B1')
+
+    # ID уже отвеченных вопросов
+    answered_ids = list(
+        Answer.objects.filter(session=session).values_list('question_id', flat=True)
+    )
+
+    # Вопрос на текущем уровне
+    question = Question.objects.filter(
+        level=estimated_level,
+        is_active=True
+    ).exclude(id__in=answered_ids).first()
+
+    # Ищем на соседних уровнях при необходимости
+    if not question:
+        levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
+        try:
+            current_idx = levels.index(estimated_level)
+        except ValueError:
+            current_idx = 2  # B1 по умолчанию
+
+        if current_idx < len(levels) - 1:
+            question = Question.objects.filter(
+                level=levels[current_idx + 1],
+                is_active=True
+            ).exclude(id__in=answered_ids).first()
+
+        if not question and current_idx > 0:
+            question = Question.objects.filter(
+                level=levels[current_idx - 1],
+                is_active=True
+            ).exclude(id__in=answered_ids).first()
+
+        if not question:
+            question = Question.objects.filter(
+                is_active=True
+            ).exclude(id__in=answered_ids).first()
+
+    # Вопросов нет — завершаем
+    if not question:
+        messages.warning(request, 'Вопросы закончились. Завершаем тест.')
+        return finish_test_automatically(request, session)
+
+    # Валидация и нормализация options
+    if question.question_type in ['single', 'multiple']:
+        opts = getattr(question, 'options', None)
+        if opts is None:
+            question.options = []
+        elif not isinstance(opts, list):
+            try:
+                if isinstance(opts, str):
+                    question.options = json.loads(opts)
+                else:
+                    question.options = []
+            except Exception:
+                question.options = []
+
+        if len(question.options) == 0:
+            messages.warning(request, f'Вопрос #{question.id} некорректный, пропускаем.')
+            Answer.objects.create(
+                session=session,
+                question=question,
+                user_answer={'skipped': True},
+                is_correct=False,
+                time_taken=0
+            )
+            session.total_questions += 1
+            session.save()
+            return show_question(request, session)
+
+    elif question.question_type == 'text':
+        if getattr(question, 'options', None) is None:
+            question.options = []
+
+    # Проверяем наличие правильного ответа
+    if getattr(question, 'correct_answer', None) is None:
+        messages.error(request, f'Вопрос #{question.id} не имеет правильного ответа, пропускаем.')
+        Answer.objects.create(
+            session=session,
+            question=question,
+            user_answer={'skipped': True},
+            is_correct=False,
+            time_taken=0
+        )
+        session.total_questions += 1
+        session.save()
+        return show_question(request, session)
+
+    # Прогресс
+    current_question = session.total_questions + 1
+    progress_percentage = int((current_question / 30) * 100)
+
+    # Время
+    time_remaining = get_time_remaining(session)
+    time_warning = get_time_warning(time_remaining)
+    time_remaining_formatted = format_time(time_remaining)
+
+    # Можно ли завершить досрочно
+    can_finish = session.total_questions >= 10
+
+    context = {
+        'session': session,
+        'question': question,
+        'current_question': current_question,
+        'total_questions': 30,
+        'progress_percentage': progress_percentage,
+        'time_remaining': time_remaining,
+        'time_remaining_formatted': time_remaining_formatted,
+        'time_warning': time_warning,
+        'can_finish': can_finish,
+    }
+
+    return render(request, 'user_test/test_page.html', context)
+
+
+def process_answer(request, session):
+    """Обработка ответа пользователя."""
+    action = request.POST.get('action', 'next')
+
+    # Проверка на таймаут (флаг из фронтенда)
+    timeout_flag = request.POST.get('timeout')
+    if timeout_flag in ('true', '1', 'yes', 'True'):
+        if hasattr(session, 'timeout'):
+            session.timeout()
+        else:
+            session.status = 'timeout'
+            session.save()
+        return redirect('user_test:timeout')
+
+    # Досрочное завершение
+    if action == 'finish':
+        return finish_test_view(request)
+
+    # Получаем вопрос
+    question_id = request.POST.get('question_id')
+    if not question_id:
+        messages.error(request, 'Ошибка: не передан ID вопроса.')
+        return redirect('user_test:question')
+
+    question = get_object_or_404(Question, id=question_id)
+
+    # Извлекаем и валидируем ответ
+    user_answer = get_user_answer(request, question)
+    if user_answer is None:
+        messages.error(request, 'Пожалуйста, выберите или введите ответ.')
+        return redirect('user_test:question')
+
+    # Проверяем правильность
+    is_correct = check_answer(question, user_answer)
+
+    # Сохраняем ответ
+    Answer.objects.create(
+        session=session,
+        question=question,
+        user_answer=user_answer,
+        is_correct=is_correct,
+        time_taken=0  # TODO: учесть фактическое время ответа
+    )
+
+    # Обновляем статистику вопроса
+    if hasattr(question, 'update_statistics'):
+        question.update_statistics(is_correct)
+
+    # Обновляем статистику сессии
+    session.total_questions += 1
+    if is_correct:
+        session.correct_answers += 1
+
+    # Обновляем статистику по теме и состояние теста
+    update_topic_score(session, question.topic, is_correct)
+    update_test_state(session, question, is_correct)
+
+    session.save()
+
+    # Проверяем, завершён ли тест
+    if session.total_questions >= 30:
+        return finish_test_automatically(request, session)
+
+    return redirect('user_test:question')
+
+
+def estimate_level_simple(session):
+    """
+    Простая оценка уровня на основе процента правильных ответов.
+    """
+    if session.total_questions == 0:
+        return 'B1'
+
+    percentage = session.percentage
+
+    if percentage >= 90:
+        return 'C2'
+    elif percentage >= 80:
+        return 'C1'
+    elif percentage >= 70:
+        return 'B2'
+    elif percentage >= 55:
+        return 'B1'
+    elif percentage >= 40:
+        return 'A2'
+    else:
+        return 'A1'
+
+
+@login_required(login_url='login')
+def finish_test_view(request):
+    """Досрочное завершение теста пользователем."""
+    if request.method != 'POST':
+        return redirect('user_test:intro')
+
+    session_id = request.session.get('test_session_id')
+    if not session_id:
+        return redirect('user_test:intro')
+
+    session = get_object_or_404(TestSession, id=session_id, user=request.user)
+
+    # Минимум 10 вопросов
+    if session.total_questions < 10:
+        messages.error(request, 'Необходимо ответить минимум на 10 вопросов.')
+        return redirect('user_test:question')
+
+    if hasattr(session, 'complete'):
+        session.complete()
+    else:
+        session.status = 'completed'
+        session.save()
+
+    # Очищаем session
+    if 'test_session_id' in request.session:
+        del request.session['test_session_id']
+
+    return redirect('user_test:results', session_id=session.id)
+
+
+@login_required(login_url='login')
+def timeout_view(request):
+    """Обработка истечения времени."""
+    session_id = request.session.get('test_session_id')
+    if not session_id:
+        return redirect('user_test:intro')
+
+    session = get_object_or_404(TestSession, id=session_id, user=request.user)
+
+    # Завершаем по таймауту
+    if session.status == 'in_progress':
+        if hasattr(session, 'timeout'):
+            session.timeout()
+        else:
+            session.status = 'timeout'
+            session.save()
+
+    # Очищаем session
+    if 'test_session_id' in request.session:
+        del request.session['test_session_id']
+
+    # Показываем результаты
+    return redirect('user_test:results', session_id=session.id)
+
+
+@login_required(login_url='login')
+def test_results_view(request, session_id):
+    """Страница результатов теста."""
+    session = get_object_or_404(TestSession, id=session_id, user=request.user)
+
+    # Если тест ещё не завершён, завершаем его
+    if session.status == 'in_progress':
+        if hasattr(session, 'complete'):
+            session.complete()
+        else:
+            session.status = 'completed'
+            session.save()
+
+    # Подсчитываем результаты по категориям
+    calculate_category_scores(session)
+
+    # Определяем уровень
+    determined_level = determine_final_level(session)
+    session.determined_level = determined_level
+
+    # Сохраняем уровень в профиль пользователя
+    profile = getattr(request.user, 'profile', None)
+    if profile:
+        profile.language_level = determined_level
+        profile.save()
+
+    session.save()
+
+    # Детали для отображения
+    level_info = get_level_info(determined_level)
+    strengths = get_strengths(session)
+    improvements = get_improvements(session)
+    learning_plan = get_learning_plan(determined_level)
+
+    # Форматируем время
+    time_spent_formatted = format_time(getattr(session, 'time_spent', 0))
+
+    # Все уровни для сравнения
+    all_levels = get_all_levels()
+
+    context = {
+        'session': session,
+        'level': determined_level,
+        'level_name': level_info['name'],
+        'level_description': level_info['description'],
+        'correct_answers': session.correct_answers,
+        'total_questions': session.total_questions,
+        'percentage': session.percentage,
+        'time_spent': time_spent_formatted,
+
+        # Оценки по категориям
+        'grammar_score': session.grammar_score,
+        'vocabulary_score': session.vocabulary_score,
+        'reading_score': session.reading_score,
+        'usage_score': session.usage_score,
+
+        # Рекомендации
+        'strengths': strengths,
+        'improvements': improvements,
+        'learning_plan': learning_plan,
+
+        # Все уровни
+        'all_levels': all_levels,
+
+        # Флаг таймаута
+        'timeout': session.status == 'timeout',
+    }
+
+    return render(request, 'user_test/test_results.html', context)
+
+
+# ===== ЛОГИКА ОЦЕНОК/РЕКОМЕНДАЦИЙ =====
+
+def calculate_category_scores(session):
+    """Подсчёт баллов по категориям."""
+    answers = Answer.objects.filter(session=session).select_related('question__topic')
+
+    categories = {
+        'grammar': {'correct': 0, 'total': 0},
+        'vocabulary': {'correct': 0, 'total': 0},
+        'reading': {'correct': 0, 'total': 0},
+        'usage': {'correct': 0, 'total': 0},
+    }
+
+    for answer in answers:
+        topic = getattr(answer.question, 'topic', None)
+        category = getattr(topic, 'category', None)
+        if category in categories:
+            categories[category]['total'] += 1
+            if answer.is_correct:
+                categories[category]['correct'] += 1
+
+    # Вычисляем проценты
+    session.grammar_score = calculate_percentage(categories['grammar'])
+    session.vocabulary_score = calculate_percentage(categories['vocabulary'])
+    session.reading_score = calculate_percentage(categories['reading'])
+    session.usage_score = calculate_percentage(categories['usage'])
+
+
+def calculate_percentage(stats):
+    """Вычисление процента."""
+    total = (stats.get('total') or 0)
+    correct = (stats.get('correct') or 0)
+    if total == 0:
+        return 0
+    return int((correct / total) * 100)
+
+
+def determine_final_level(session):
+    """Определение финального уровня (простая логика)."""
+    return estimate_level_simple(session)
+
+
+def get_level_info(level):
+    """Информация об уровне."""
+    levels = {
+        'A1': {
+            'name': 'Начальный (Beginner)',
+            'description': 'Вы можете понимать и использовать простые фразы и выражения для удовлетворения конкретных потребностей.'
+        },
+        'A2': {
+            'name': 'Элементарный (Elementary)',
+            'description': 'Вы понимаете предложения и часто используемые выражения, можете общаться в простых рутинных ситуациях.'
+        },
+        'B1': {
+            'name': 'Средний (Intermediate)',
+            'description': 'Вы можете понимать основные моменты четкой речи на знакомые темы и справляться с большинством ситуаций во время путешествий.'
+        },
+        'B2': {
+            'name': 'Выше среднего (Upper-Intermediate)',
+            'description': 'Вы понимаете основное содержание сложных текстов и можете взаимодействовать с носителями языка достаточно свободно.'
+        },
+        'C1': {
+            'name': 'Продвинутый (Advanced)',
+            'description': 'Вы понимаете широкий спектр сложных текстов и можете выражаться свободно и спонтанно без явного поиска выражений.'
+        },
+        'C2': {
+            'name': 'Профессиональный (Proficiency)',
+            'description': 'Вы легко понимаете практически всё услышанное или прочитанное и можете выражаться спонтанно, очень бегло и точно.'
+        },
+    }
+    return levels.get(level, levels['B1'])
+
+
+def get_strengths(session):
+    """Определение сильных сторон."""
+    strengths = []
+
+    scores = {
+        'Грамматика': session.grammar_score,
+        'Словарный запас': session.vocabulary_score,
+        'Понимание текста': session.reading_score,
+        'Использование языка': session.usage_score,
+    }
+
+    for name, score in scores.items():
+        if score >= 70:
+            strengths.append(f'{name}: отличные результаты ({score}%)')
+
+    if not strengths:
+        strengths.append('Вы показали хорошую базу для дальнейшего развития')
+
+    return strengths
+
+
+def get_improvements(session):
+    """Определение областей для улучшения."""
+    improvements = []
+
+    scores = {
+        'грамматику': session.grammar_score,
+        'словарный запас': session.vocabulary_score,
+        'понимание текста': session.reading_score,
+        'практическое использование языка': session.usage_score,
+    }
+
+    for name, score in scores.items():
+        if score < 50:
+            improvements.append(f'Рекомендуется усилить {name}')
+
+    if not improvements:
+        improvements.append('Продолжайте практиковаться для перехода на следующий уровень')
+
+    return improvements
+
+
+def get_learning_plan(level):
+    """Рекомендуемый план обучения."""
+    plans = {
+        'A1': 'Сосредоточьтесь на базовой грамматике, расширении словарного запаса и простых диалогах. Рекомендуем 3-4 урока в неделю по 30 минут.',
+        'A2': 'Работайте над грамматическими конструкциями, активно пополняйте словарный запас и практикуйте чтение простых текстов. Рекомендуем 4-5 уроков в неделю.',
+        'B1': 'Углубляйте знания грамматики, читайте адаптированную литературу и практикуйте разговорную речь. Идеально 5 уроков в неделю по 45 минут.',
+        'B2': 'Изучайте сложные грамматические конструкции, читайте оригинальные тексты и активно общайтесь на английском. Рекомендуем ежедневную практику.',
+        'C1': 'Совершенствуйте стиль речи, работайте над идиомами и специализированной лексикой. Погружение в языковую среду будет идеальным.',
+        'C2': 'Поддерживайте уровень через чтение сложной литературы, просмотр фильмов и активное общение с носителями языка.',
+    }
+    return plans.get(level, plans['B1'])
+
+
+def get_all_levels():
+    """Список всех уровней для отображения."""
+    return [
+        {'code': 'A1', 'name': 'Начальный (Beginner)', 'description': 'Базовое знание языка'},
+        {'code': 'A2', 'name': 'Элементарный (Elementary)', 'description': 'Понимание простых фраз'},
+        {'code': 'B1', 'name': 'Средний (Intermediate)', 'description': 'Уверенное общение на знакомые темы'},
+        {'code': 'B2', 'name': 'Выше среднего (Upper-Intermediate)', 'description': 'Свободное общение'},
+        {'code': 'C1', 'name': 'Продвинутый (Advanced)', 'description': 'Беглое владение языком'},
+        {'code': 'C2', 'name': 'Профессиональный (Proficiency)', 'description': 'Уровень носителя'},
+    ]

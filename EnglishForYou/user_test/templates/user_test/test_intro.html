@@ -138,7 +138,7 @@
 
       <!-- Кнопка начала теста -->
       <div class="border-t border-gray-200 bg-gradient-to-br from-gray-50 to-white p-8">
-        <form method="POST" action="#" id="startTestForm">
+        <form method="POST" action="{% url 'user_test:start' %}" id="startTestForm">
           {% csrf_token %}
           
           <!-- Чекбокс согласия -->

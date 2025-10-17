@@ -14,8 +14,8 @@ class OpenRouterAIService:
     
     def __init__(self):
         self.api_key = getattr(settings, 'OPENROUTER_API_KEY', None)
-        self.model = getattr(settings, 'AI_MODEL', 'tngtech/deepseek-r1t2-chimera:free')
-        self.api_url = 'https://openrouter.ai/api/v1/chat/completions'
+        self.model = getattr(settings, 'AI_MODEL', 'meta-llama/Llama-3.3-70B-Instruct')
+        self.api_url = 'https://api.intelligence.io.solutions/api/v1/chat/completions'
         
         if not self.api_key:
             logger.warning("OPENROUTER_API_KEY не установлен в settings.py")

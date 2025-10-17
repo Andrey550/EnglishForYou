@@ -133,11 +133,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # Настройки AI
-OPENROUTER_API_KEY = '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'
+OPENROUTER_API_KEY = 'io-v2-eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJvd25lciI6IjBkMWY0ZDNlLWM3NTItNDA3MS1hNWY2LTQwYTAxN2NhM2Q3ZCIsImV4cCI6NDkxNDMyNjc1OX0.NGAMZcp8CWeQOIBuvr_9QPDlqUKZlXoySyl6abnTdO-jDNLm1tLJAhwjlCdtB_B42fcQDz_HToehiTHCZ-6QhQ'
 
 AI_SETTINGS = {
     'OPENROUTER_API_KEY': OPENROUTER_API_KEY,
-    'MODEL': 'tngtech/deepseek-r1t2-chimera:free',  # Или другая модель
+    'MODEL': 'meta-llama/Llama-3.3-70B-Instruct',  # Или другая модель
     'MAX_TOKENS': 5000,
     'TEMPERATURE': 0.7,
 }

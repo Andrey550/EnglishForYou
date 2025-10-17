@@ -2,7 +2,7 @@
 Test Service - логика адаптивного теста с AI генерацией
 """
 import logging
-from django.db.models import Q
+from django.db.models import Subquery
 from ..models import Question, Topic, TestSession, Answer
 from .ai_service import get_ai_service
 
@@ -15,79 +15,77 @@ class AdaptiveTestService:
     def __init__(self):
         self.ai_service = get_ai_service()
     
-    def get_next_question(self, test_session, use_ai=True):
+    def get_next_question(self, test_session, current_question_number):
         """
-        Получает следующий вопрос для теста (из базы или генерирует через AI)
-        
-        Args:
-            test_session: Объект TestSession
-            use_ai: Использовать ли AI для генерации, если нет подходящих вопросов
-        
-        Returns:
-            Question: Объект вопроса (сохранённый или новый)
+        Возвращает следующий вопрос.
+        Каждый 5-й вопрос — через AI, иначе ищем в БД.
         """
-        
         test_state = test_session.test_state or {}
         estimated_level = test_state.get('estimated_level', 'B1')
         recent_topics = test_state.get('recent_topics', [])
-        
-        # ID уже отвеченных вопросов
-        answered_ids = list(
-            Answer.objects.filter(session=test_session).values_list('question_id', flat=True)
-        )
-        
-        logger.info(f"Поиск вопроса для уровня {estimated_level}, отвечено: {len(answered_ids)}")
-        
-        # Попытка 1: Найти вопрос в базе на текущем уровне
-        question = self._find_question_in_db(
-            level=estimated_level,
-            answered_ids=answered_ids,
-            avoid_topics=recent_topics[-3:] if len(recent_topics) > 3 else []
-        )
-        
-        if question:
-            logger.info(f"Найден вопрос в базе: #{question.id}")
-            return question
-        
-        # Попытка 2: Найти на соседних уровнях
-        question = self._find_fallback_question(
-            current_level=estimated_level,
-            answered_ids=answered_ids
-        )
-        
-        if question:
-            logger.info(f"Найден fallback вопрос: #{question.id}")
-            return question
-        
-        # Попытка 3: Генерация через AI
+
+        # Subquery для исключения уже отвеченных вопросов
+        answered_qs = Answer.objects.filter(session=test_session).values('question_id')
+        use_ai = (current_question_number % 5 == 0)
+
+        logger.info(f"session={getattr(test_session, 'id', None)} q#{current_question_number} level={estimated_level} AI={use_ai}")
+
+        question = None
         if use_ai:
-            logger.info(f"Генерация вопроса через AI для уровня {estimated_level}")
             try:
                 question = self._generate_and_save_question(
                     level=estimated_level,
-                    avoid_topics=recent_topics[-5:] if len(recent_topics) > 5 else []
+                    avoid_topics=recent_topics[-5:]
                 )
                 logger.info(f"AI сгенерировал вопрос: #{question.id}")
-                return question
-            
-            except Exception as e:
-                logger.error(f"Ошибка генерации AI вопроса: {str(e)}")
-                # Fallback на любой вопрос из базы
-                question = Question.objects.filter(
-                    is_active=True
-                ).exclude(id__in=answered_ids).first()
-                
-                if question:
-                    logger.warning(f"Используем запасной вопрос: #{question.id}")
-                    return question
-        
-        # Нет доступных вопросов
-        logger.error("Не удалось найти или сгенерировать вопрос")
-        return None
+            except Exception:
+                logger.error("Ошибка генерации AI вопроса", exc_info=True)
+                # Фоллбек в БД
+                question = (
+                    self._find_question_in_db(
+                        level=estimated_level,
+                        answered_ids=Subquery(answered_qs),
+                        avoid_topics=recent_topics[-3:]
+                    )
+                    or self._find_fallback_question(
+                        current_level=estimated_level,
+                        answered_ids=Subquery(answered_qs)
+                    )
+                )
+        else:
+            # Только БД
+            logger.info(f"Поиск вопроса в БД, отвечено: {Answer.objects.filter(session=test_session).count()}")
+            question = (
+                self._find_question_in_db(
+                    level=estimated_level,
+                    answered_ids=Subquery(answered_qs),
+                    avoid_topics=recent_topics[-3:]
+                )
+                or self._find_fallback_question(
+                    current_level=estimated_level,
+                    answered_ids=Subquery(answered_qs)
+                )
+            )
+
+        if not question:
+            logger.error("Не удалось получить вопрос")
+            return None
+
+        # Обновим recent_topics
+        try:
+            if getattr(question, "topic_id", None):
+                recent_topics.append(question.topic.code)
+                test_state["recent_topics"] = recent_topics[-10:]
+                test_session.test_state = test_state
+                test_session.save(update_fields=["test_state"])
+        except Exception:
+            logger.warning("Не удалось обновить recent_topics", exc_info=True)
+
+        logger.info(f"Выбран вопрос: #{question.id}")
+        return question
     
     def _find_question_in_db(self, level, answered_ids, avoid_topics=None):
         """Ищет вопрос в базе данных"""
-        
         query = Question.objects.filter(
             level=level,
             is_active=True
@@ -102,7 +100,6 @@ class AdaptiveTestService:
     
     def _find_fallback_question(self, current_level, answered_ids):
         """Ищет вопрос на соседних уровнях"""
-        
         levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
         
         try:
@@ -116,7 +113,6 @@ class AdaptiveTestService:
                 level=levels[current_idx + 1],
                 is_active=True
             ).exclude(id__in=answered_ids).order_by('?').first()
-            
             if question:
                 return question
         
@@ -126,7 +122,6 @@ class AdaptiveTestService:
                 level=levels[current_idx - 1],
                 is_active=True
             ).exclude(id__in=answered_ids).order_by('?').first()
-            
             if question:
                 return question
         
@@ -137,8 +132,6 @@ class AdaptiveTestService:
     
     def _generate_and_save_question(self, level, avoid_topics=None):
         """Генерирует вопрос через AI и сохраняет в базу"""
-        
-        # Выбираем случайный тип вопроса
         import random
         question_types = ['single', 'multiple', 'text']
         question_type = random.choice(question_types)
@@ -170,20 +163,15 @@ class AdaptiveTestService:
         )
         
         logger.info(f"Создан AI вопрос #{question.id}: {question.question_text[:50]}")
-        
         return question
     
     def _get_or_create_topic(self, topic_code, level):
         """Получает или создаёт тему"""
-        
-        # Пытаемся найти существующую тему
         topic = Topic.objects.filter(code=topic_code).first()
-        
         if topic:
             return topic
         
-        # Создаём новую тему
-        # Определяем категорию по коду темы (простая эвристика)
+        # Простая эвристика категории
         category = 'grammar'
         if 'vocab' in topic_code or 'word' in topic_code:
             category = 'vocabulary'
@@ -202,7 +190,6 @@ class AdaptiveTestService:
         )
         
         logger.info(f"Создана новая тема: {topic.name} ({topic.code})")
-        
         return topic
 
 

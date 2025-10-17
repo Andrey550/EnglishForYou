@@ -331,11 +331,14 @@ def show_question(request, session):
     # ========== НОВЫЙ КОД: Используем test_service для получения вопроса ==========
     test_service = get_test_service()
 
+    # Номер текущего вопроса (от 1 до 30)
+    current_question_number = session.total_questions + 1
+
     try:
-        # Получаем вопрос (из базы или генерируем через AI)
+        # Получаем вопрос (каждый 5-й через AI, остальные из БД)
         question = test_service.get_next_question(
             test_session=session,
-            use_ai=True  # Включить AI генерацию
+            current_question_number=current_question_number
         )
 
     except Exception as e:

@@ -2,6 +2,7 @@ from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from .forms import LoginForm, RegisterForm
+from user_test.models import TestSession
 
 User = get_user_model()
 
@@ -67,36 +68,51 @@ def logout_view(request):
 def user_profile_view(request):
     user = request.user
     profile = user.profile
-
+    
     def normalize_csv(s: str) -> str:
         if not s:
             return ''
         s = s.replace('|', ',')
         items = [x.strip() for x in s.split(',') if x.strip()]
         return ','.join(items)
-
+    
     def csv_to_list(s: str):
         if not s:
             return []
         s = s.replace('|', ',')
         return [x.strip() for x in s.split(',') if x.strip()]
-
+    
     if request.method == 'POST':
         interests = request.POST.get('interests', '')
         goals = request.POST.get('goals', '')
         about = request.POST.get('about', '')
-
+        
         profile.interests = normalize_csv(interests)
         profile.learning_goals = normalize_csv(goals)
         profile.about = about.strip()
         profile.save()
-
+        
         return redirect('user_profile')
-
+    
+    # Получаем последний завершённый тест
+    last_test = TestSession.objects.filter(
+        user=user,
+        status__in=['completed', 'timeout']
+    ).order_by('-completed_at').first()
+    
+    # Если есть тест и уровень — обновляем профиль
+    if last_test and last_test.determined_level:
+        if profile.language_level != last_test.determined_level:
+            profile.language_level = last_test.determined_level
+            profile.save()
+    
     context = {
         'interests_list': profile.get_interests_list(),
         'goals_list': profile.get_goals_list(),
-        'available_interests': AVAILABLE_INTERESTS,  # твоя константа
-        'recent_activities': csv_to_list(profile.last_activity)[:5],  # <= новые данные
+        'available_interests': AVAILABLE_INTERESTS,
+        'recent_activities': csv_to_list(profile.last_activity)[:5],
+        'language_level': profile.language_level,
+        'last_test': last_test,
     }
+    
     return render(request, 'user/user_profile.html', context)

@@ -143,30 +143,53 @@
       <!-- Right Column -->
       <aside class="space-y-6">
         <!-- Level Status -->
-        <section class="bg-white rounded-2xl ring-1 ring-gray-200 shadow-sm overflow-hidden transition-transform duration-300 hover:-translate-y-0.5 hover:shadow-lg">
-          <header class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/60">
-            <h3 class="text-lg font-bold m-0 inline-flex items-center gap-2">
-              <i class="fas fa-chart-line text-primary w-[18px] h-[18px]" aria-hidden="true"></i>
-              Уровень языка
-            </h3>
-          </header>
-          <div class="text-center p-6">
-            <div class="py-4">
-              <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
-                <i class="fas fa-question text-4xl text-gray-400" aria-hidden="true"></i>
-              </div>
-              <h4 class="text-lg font-bold text-gray-900 mb-2">Уровень не определён</h4>
-              <p class="text-sm text-gray-600 mb-6 px-4">Пройдите тест для определения вашего уровня владения английским языком</p>
-              <a href="{% url 'user_test:intro' %}"
-                 class="group relative inline-flex items-center justify-center gap-2 px-6 py-3 font-semibold text-base rounded-full bg-gradient-to-r from-primary to-emerald-700 text-white overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 active:brightness-95">
-                <span class="absolute inset-0 w-0 bg-emerald-800 transition-all duration-300 group-hover:w-full z-0"></span>
-                <i class="fas fa-clipboard-check relative z-10" aria-hidden="true"></i>
-                <span class="relative z-10">Пройти тест</span>
-                <i class="fas fa-arrow-right relative z-10 transition-transform group-hover:translate-x-1" aria-hidden="true"></i>
-              </a>
-            </div>
-          </div>
-        </section>
+<section class="bg-white rounded-2xl ring-1 ring-gray-200 shadow-sm overflow-hidden transition-transform duration-300 hover:-translate-y-0.5 hover:shadow-lg">
+  <header class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/60">
+    <h3 class="text-lg font-bold m-0 inline-flex items-center gap-2">
+      <i class="fas fa-chart-line text-primary w-[18px] h-[18px]" aria-hidden="true"></i>
+      Уровень языка
+    </h3>
+  </header>
+  <div class="text-center p-6">
+    {% if language_level %}
+      <!-- Уровень определён -->
+      <div class="py-4">
+        <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary to-emerald-700 flex items-center justify-center shadow-lg">
+          <span class="text-3xl font-bold text-white">{{ language_level }}</span>
+        </div>
+        <h4 class="text-lg font-bold text-gray-900 mb-2">Ваш уровень: {{ language_level }}</h4>
+        <p class="text-sm text-gray-600 mb-2 px-4">
+          Правильных ответов: {{ last_test.correct_answers }} из {{ last_test.total_questions }} ({{ last_test.percentage }}%)
+        </p>
+        <p class="text-xs text-gray-500 mb-6">
+          Тест пройден {{ last_test.completed_at|date:"d.m.Y в H:i" }}
+        </p>
+        <a href="{% url 'user_test:intro' %}"
+           class="group relative inline-flex items-center justify-center gap-2 px-6 py-3 font-semibold text-base rounded-full bg-gradient-to-r from-gray-600 to-gray-700 text-white overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-gray-600/30 active:brightness-95">
+          <span class="absolute inset-0 w-0 bg-gray-800 transition-all duration-300 group-hover:w-full z-0"></span>
+          <i class="fas fa-redo relative z-10" aria-hidden="true"></i>
+          <span class="relative z-10">Пройти тест заново</span>
+        </a>
+      </div>
+    {% else %}
+      <!-- Уровень не определён -->
+      <div class="py-4">
+        <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+          <i class="fas fa-question text-4xl text-gray-400" aria-hidden="true"></i>
+        </div>
+        <h4 class="text-lg font-bold text-gray-900 mb-2">Уровень не определён</h4>
+        <p class="text-sm text-gray-600 mb-6 px-4">Пройдите тест для определения вашего уровня владения английским языком</p>
+        <a href="{% url 'user_test:intro' %}"
+           class="group relative inline-flex items-center justify-center gap-2 px-6 py-3 font-semibold text-base rounded-full bg-gradient-to-r from-primary to-emerald-700 text-white overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 active:brightness-95">
+          <span class="absolute inset-0 w-0 bg-emerald-800 transition-all duration-300 group-hover:w-full z-0"></span>
+          <i class="fas fa-clipboard-check relative z-10" aria-hidden="true"></i>
+          <span class="relative z-10">Пройти тест</span>
+          <i class="fas fa-arrow-right relative z-10 transition-transform group-hover:translate-x-1" aria-hidden="true"></i>
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</section>
 
         <!-- Quick Stats -->
         <section class="bg-white rounded-2xl ring-1 ring-gray-200 shadow-sm overflow-hidden transition-transform duration-300 hover:-translate-y-0.5 hover:shadow-lg">

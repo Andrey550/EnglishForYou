@@ -2,11 +2,14 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
+from .services.test_service import get_test_service
+import logging
 
 from .models import TestSession, Question, Answer, TopicScore
 
 import json
 
+logger = logging.getLogger(__name__)
 
 # ===== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ =====
 
@@ -325,45 +328,21 @@ def show_question(request, session):
         messages.info(request, 'Вы ответили на все 30 вопросов. Тест завершён!')
         return finish_test_automatically(request, session)
 
-    # Состояние теста
-    test_state = session.test_state or {}
-    estimated_level = test_state.get('estimated_level', 'B1')
+    # ========== НОВЫЙ КОД: Используем test_service для получения вопроса ==========
+    test_service = get_test_service()
 
-    # ID уже отвеченных вопросов
-    answered_ids = list(
-        Answer.objects.filter(session=session).values_list('question_id', flat=True)
-    )
+    try:
+        # Получаем вопрос (из базы или генерируем через AI)
+        question = test_service.get_next_question(
+            test_session=session,
+            use_ai=True  # Включить AI генерацию
+        )
 
-    # Вопрос на текущем уровне
-    question = Question.objects.filter(
-        level=estimated_level,
-        is_active=True
-    ).exclude(id__in=answered_ids).first()
-
-    # Ищем на соседних уровнях при необходимости
-    if not question:
-        levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
-        try:
-            current_idx = levels.index(estimated_level)
-        except ValueError:
-            current_idx = 2  # B1 по умолчанию
-
-        if current_idx < len(levels) - 1:
-            question = Question.objects.filter(
-                level=levels[current_idx + 1],
-                is_active=True
-            ).exclude(id__in=answered_ids).first()
-
-        if not question and current_idx > 0:
-            question = Question.objects.filter(
-                level=levels[current_idx - 1],
-                is_active=True
-            ).exclude(id__in=answered_ids).first()
-
-        if not question:
-            question = Question.objects.filter(
-                is_active=True
-            ).exclude(id__in=answered_ids).first()
+    except Exception as e:
+        logger.error(f"Ошибка получения вопроса: {str(e)}")
+        messages.error(request, 'Произошла ошибка при загрузке вопроса. Попробуйте ещё раз.')
+        return redirect('user_test:intro')
+    # ========== КОНЕЦ НОВОГО КОДА ==========
 
     # Вопросов нет — завершаем
     if not question:

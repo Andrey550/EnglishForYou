@@ -128,3 +128,45 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
+
+# Настройки AI
+OPENROUTER_API_KEY = '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'
+
+AI_SETTINGS = {
+    'OPENROUTER_API_KEY': OPENROUTER_API_KEY,
+    'MODEL': 'tngtech/deepseek-r1t2-chimera:free',  # Или другая модель
+    'MAX_TOKENS': 5000,
+    'TEMPERATURE': 0.7,
+}
+
+# Настройки генерации
+AI_GENERATION_ENABLED = True  # Включить/выключить AI генерацию
+
+# Логирование
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': 'debug.log',
+        },
+    },
+    'root': {
+        'handlers': ['console', 'file'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'user_test': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
+}

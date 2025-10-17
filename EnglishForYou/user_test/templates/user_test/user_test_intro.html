@@ -1,0 +1,277 @@
+{% extends 'main/layout.html' %}
+
+{% block content %}
+<main id="main" class="relative min-h-screen py-10">
+  <!-- Декоративный фон -->
+  <div aria-hidden="true"
+    class="pointer-events-none absolute inset-x-0 -top-20 -z-10 h-64 bg-gradient-to-b from-primary/10 to-transparent blur-2xl">
+  </div>
+
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Заголовок -->
+    <div class="text-center mb-12 animate-[fadeInDown_0.5s_ease-out]">
+      <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-primary to-emerald-700 text-white mb-6 shadow-lg">
+        <i class="fas fa-clipboard-check text-3xl" aria-hidden="true"></i>
+      </div>
+      <h1 class="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight mb-4">
+        Тест на определение уровня
+      </h1>
+      <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+        Пройдите адаптивный тест, чтобы точно определить ваш уровень владения английским языком
+      </p>
+    </div>
+
+    <!-- Основная карточка -->
+    <div class="bg-white rounded-3xl ring-1 ring-gray-200 shadow-2xl overflow-hidden mb-8 animate-[fadeInUp_0.6s_ease-out]">
+      
+      <!-- Информация о тесте -->
+      <div class="p-8 sm:p-12">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6 inline-flex items-center gap-3">
+          <i class="fas fa-info-circle text-primary" aria-hidden="true"></i>
+          О тесте
+        </h2>
+        
+        <div class="prose prose-lg max-w-none text-gray-700 mb-8">
+          <p>
+            Этот тест использует технологию искусственного интеллекта для адаптивной оценки ваших знаний. 
+            Вопросы будут автоматически подстраиваться под ваш уровень, обеспечивая максимально точное определение.
+          </p>
+        </div>
+
+        <!-- Ключевые параметры -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div class="flex items-start gap-4 p-5 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 ring-1 ring-blue-200/60">
+            <div class="flex-shrink-0 w-12 h-12 rounded-full bg-blue-200 flex items-center justify-center text-blue-700">
+              <i class="fas fa-question-circle text-xl" aria-hidden="true"></i>
+            </div>
+            <div>
+              <div class="text-2xl font-extrabold text-blue-900">30</div>
+              <div class="text-sm font-medium text-blue-700">Вопросов</div>
+              <div class="text-xs text-blue-600 mt-1">Минимум 10 для результата</div>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-4 p-5 rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100 ring-1 ring-emerald-200/60">
+            <div class="flex-shrink-0 w-12 h-12 rounded-full bg-emerald-200 flex items-center justify-center text-emerald-700">
+              <i class="fas fa-clock text-xl" aria-hidden="true"></i>
+            </div>
+            <div>
+              <div class="text-2xl font-extrabold text-emerald-900">30</div>
+              <div class="text-sm font-medium text-emerald-700">Минут</div>
+              <div class="text-xs text-emerald-600 mt-1">На весь тест</div>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-4 p-5 rounded-xl bg-gradient-to-br from-purple-50 to-purple-100 ring-1 ring-purple-200/60">
+            <div class="flex-shrink-0 w-12 h-12 rounded-full bg-purple-200 flex items-center justify-center text-purple-700">
+              <i class="fas fa-layer-group text-xl" aria-hidden="true"></i>
+            </div>
+            <div>
+              <div class="text-2xl font-extrabold text-purple-900">A1-C2</div>
+              <div class="text-sm font-medium text-purple-700">Уровни</div>
+              <div class="text-xs text-purple-600 mt-1">От начального до профи</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Правила и рекомендации -->
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-xl font-bold text-gray-900 mb-4 inline-flex items-center gap-2">
+              <i class="fas fa-list-check text-primary" aria-hidden="true"></i>
+              Правила прохождения
+            </h3>
+            <ul class="space-y-3">
+              <li class="flex items-start gap-3">
+                <i class="fas fa-check-circle text-green-600 mt-1 flex-shrink-0" aria-hidden="true"></i>
+                <span class="text-gray-700">У вас будет <strong>30 минут</strong> на прохождение всего теста</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <i class="fas fa-check-circle text-green-600 mt-1 flex-shrink-0" aria-hidden="true"></i>
+                <span class="text-gray-700">Тест содержит <strong>30 вопросов</strong> различных типов (одиночный выбор, множественный выбор, текстовый ввод)</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <i class="fas fa-check-circle text-green-600 mt-1 flex-shrink-0" aria-hidden="true"></i>
+                <span class="text-gray-700">Вопросы адаптируются под ваш уровень - чем лучше вы отвечаете, тем сложнее становятся вопросы</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <i class="fas fa-check-circle text-green-600 mt-1 flex-shrink-0" aria-hidden="true"></i>
+                <span class="text-gray-700">Можно завершить тест досрочно, но <strong>минимум после 10 вопросов</strong></span>
+              </li>
+              <li class="flex items-start gap-3">
+                <i class="fas fa-times-circle text-amber-600 mt-1 flex-shrink-0" aria-hidden="true"></i>
+                <span class="text-gray-700">Нельзя вернуться к предыдущим вопросам - отвечайте внимательно</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <i class="fas fa-exclamation-triangle text-red-600 mt-1 flex-shrink-0" aria-hidden="true"></i>
+                <span class="text-gray-700">При закрытии вкладки прогресс будет <strong>потерян</strong></span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="bg-gradient-to-br from-amber-50 to-amber-100/50 rounded-xl p-6 ring-1 ring-amber-200/60">
+            <h3 class="text-lg font-bold text-amber-900 mb-3 inline-flex items-center gap-2">
+              <i class="fas fa-lightbulb text-amber-600" aria-hidden="true"></i>
+              Рекомендации
+            </h3>
+            <ul class="space-y-2 text-sm text-amber-800">
+              <li class="flex items-start gap-2">
+                <i class="fas fa-circle text-amber-600 text-xs mt-1.5 flex-shrink-0" aria-hidden="true"></i>
+                <span>Найдите тихое место, где вас никто не будет отвлекать</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <i class="fas fa-circle text-amber-600 text-xs mt-1.5 flex-shrink-0" aria-hidden="true"></i>
+                <span>Убедитесь, что у вас стабильное интернет-соединение</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <i class="fas fa-circle text-amber-600 text-xs mt-1.5 flex-shrink-0" aria-hidden="true"></i>
+                <span>Отвечайте честно - это поможет точнее определить ваш уровень</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <i class="fas fa-circle text-amber-600 text-xs mt-1.5 flex-shrink-0" aria-hidden="true"></i>
+                <span>Не используйте словари и переводчики - оцениваются ваши реальные знания</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Кнопка начала теста -->
+      <div class="border-t border-gray-200 bg-gradient-to-br from-gray-50 to-white p-8">
+        <form method="POST" action="#" id="startTestForm">
+          {% csrf_token %}
+          
+          <!-- Чекбокс согласия -->
+          <div class="mb-6">
+            <label class="flex items-start gap-3 cursor-pointer group">
+              <input type="checkbox" 
+                     id="agreeCheckbox" 
+                     name="agree" 
+                     required
+                     class="w-5 h-5 text-primary rounded focus:ring-2 focus:ring-primary mt-0.5">
+              <span class="text-sm text-gray-700 group-hover:text-gray-900">
+                Я ознакомился с правилами и готов приступить к прохождению теста. 
+                Я понимаю, что при закрытии вкладки мой прогресс будет потерян.
+              </span>
+            </label>
+          </div>
+
+          <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <button type="submit" 
+                    id="startBtn"
+                    class="group relative inline-flex items-center justify-center gap-3 px-8 py-4 font-bold text-lg rounded-full bg-gradient-to-r from-primary to-emerald-700 text-white overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/30 active:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0">
+              <span class="absolute inset-0 w-0 bg-emerald-800 transition-all duration-300 group-hover:w-full z-0"></span>
+              <i class="fas fa-play-circle text-2xl relative z-10" aria-hidden="true"></i>
+              <span class="relative z-10">Начать тест</span>
+              <i class="fas fa-arrow-right relative z-10 transition-transform group-hover:translate-x-1" aria-hidden="true"></i>
+            </button>
+
+            <a href="{% url 'user_profile' %}" 
+               class="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold bg-white ring-1 ring-gray-300 text-gray-800 transition-all hover:-translate-y-0.5 hover:shadow-md hover:text-primary hover:ring-primary">
+              <i class="fas fa-arrow-left" aria-hidden="true"></i>
+              Вернуться в профиль
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Дополнительная информация -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 animate-[fadeInUp_0.7s_ease-out]">
+      <!-- Что вы получите -->
+      <div class="bg-white rounded-2xl ring-1 ring-gray-200 shadow-sm p-6">
+        <h3 class="text-lg font-bold text-gray-900 mb-4 inline-flex items-center gap-2">
+          <i class="fas fa-gift text-primary" aria-hidden="true"></i>
+          Что вы получите
+        </h3>
+        <ul class="space-y-3 text-sm text-gray-700">
+          <li class="flex items-start gap-2">
+            <i class="fas fa-check text-green-600 mt-0.5 flex-shrink-0" aria-hidden="true"></i>
+            <span>Точное определение вашего уровня (A1, A2, B1, B2, C1, C2)</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <i class="fas fa-check text-green-600 mt-0.5 flex-shrink-0" aria-hidden="true"></i>
+            <span>Детальную разбивку по навыкам (грамматика, лексика, понимание)</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <i class="fas fa-check text-green-600 mt-0.5 flex-shrink-0" aria-hidden="true"></i>
+            <span>Персональные рекомендации по обучению</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <i class="fas fa-check text-green-600 mt-0.5 flex-shrink-0" aria-hidden="true"></i>
+            <span>Программу обучения, подобранную под ваш уровень</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Уровни CEFR -->
+      <div class="bg-white rounded-2xl ring-1 ring-gray-200 shadow-sm p-6">
+        <h3 class="text-lg font-bold text-gray-900 mb-4 inline-flex items-center gap-2">
+          <i class="fas fa-graduation-cap text-primary" aria-hidden="true"></i>
+          Уровни CEFR
+        </h3>
+        <div class="space-y-2 text-sm">
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center justify-center w-10 h-8 rounded bg-gray-100 text-gray-700 font-bold text-xs">A1</span>
+            <span class="text-gray-600">Начальный (Beginner)</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center justify-center w-10 h-8 rounded bg-gray-100 text-gray-700 font-bold text-xs">A2</span>
+            <span class="text-gray-600">Элементарный (Elementary)</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center justify-center w-10 h-8 rounded bg-blue-100 text-blue-700 font-bold text-xs">B1</span>
+            <span class="text-gray-600">Средний (Intermediate)</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center justify-center w-10 h-8 rounded bg-blue-100 text-blue-700 font-bold text-xs">B2</span>
+            <span class="text-gray-600">Выше среднего (Upper-Intermediate)</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center justify-center w-10 h-8 rounded bg-emerald-100 text-emerald-700 font-bold text-xs">C1</span>
+            <span class="text-gray-600">Продвинутый (Advanced)</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center justify-center w-10 h-8 rounded bg-emerald-100 text-emerald-700 font-bold text-xs">C2</span>
+            <span class="text-gray-600">Профессиональный (Proficiency)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  // Активация кнопки только при согласии
+  document.addEventListener('DOMContentLoaded', () => {
+    const checkbox = document.getElementById('agreeCheckbox');
+    const startBtn = document.getElementById('startBtn');
+    
+    // Изначально кнопка отключена
+    startBtn.disabled = !checkbox.checked;
+    
+    checkbox.addEventListener('change', () => {
+      startBtn.disabled = !checkbox.checked;
+    });
+    
+    // Предотвращение двойной отправки
+    const form = document.getElementById('startTestForm');
+    form.addEventListener('submit', () => {
+      startBtn.disabled = true;
+      startBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Запуск теста...';
+    });
+  });
+</script>
+
+<style>
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+{% endblock %}

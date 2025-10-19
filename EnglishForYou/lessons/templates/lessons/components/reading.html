@@ -1,0 +1,77 @@
+<!-- Текст -->
+<div class="mb-8">
+  <h2 class="text-xl font-bold text-gray-900 mb-4">📚 Текст для чтения</h2>
+  <div class="bg-gray-50 p-6 rounded-lg leading-relaxed text-gray-700">
+    {{ content.text|linebreaks }}
+  </div>
+</div>
+
+<!-- Глоссарий -->
+<div class="mb-8">
+  <h3 class="text-lg font-semibold text-gray-900 mb-3">Новые слова:</h3>
+  <div class="grid grid-cols-2 gap-3">
+    {% for word in content.glossary %}
+    <div class="flex items-center gap-2 p-3 bg-blue-50 rounded-lg">
+      <span class="font-bold text-blue-600">{{ word.word }}</span>
+      <span class="text-gray-600">—</span>
+      <span class="text-gray-700">{{ word.translation }}</span>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Вопросы -->
+<div class="mb-8">
+  <h3 class="text-lg font-semibold text-gray-900 mb-4">Вопросы по тексту:</h3>
+  
+  {% for exercise in content.exercises %}
+  <div class="exercise mb-6 p-4 bg-gray-50 rounded-lg" data-id="{{ exercise.id }}" data-type="{{ exercise.type }}" data-answer="{{ exercise.correct_answer }}">
+    <div class="font-semibold text-gray-900 mb-3">{{ forloop.counter }}. {{ exercise.question }}</div>
+    
+    {% if exercise.type == 'multiple_choice' %}
+    <div class="space-y-2">
+      {% for option in exercise.options %}
+      <label class="flex items-center gap-3 p-3 border-2 border-gray-300 rounded-lg cursor-pointer hover:bg-white transition">
+        <input type="radio" name="exercise_{{ exercise.id }}" value="{{ forloop.counter0 }}" class="user-answer w-4 h-4">
+        <span>{{ option }}</span>
+      </label>
+      {% endfor %}
+    </div>
+    {% elif exercise.type == 'true_false' %}
+    <div class="space-y-2">
+      <label class="flex items-center gap-3 p-3 border-2 border-gray-300 rounded-lg cursor-pointer hover:bg-white transition">
+        <input type="radio" name="exercise_{{ exercise.id }}" value="true" class="user-answer w-4 h-4">
+        <span>True (Правда)</span>
+      </label>
+      <label class="flex items-center gap-3 p-3 border-2 border-gray-300 rounded-lg cursor-pointer hover:bg-white transition">
+        <input type="radio" name="exercise_{{ exercise.id }}" value="false" class="user-answer w-4 h-4">
+        <span>False (Ложь)</span>
+      </label>
+    </div>
+    {% endif %}
+    
+    <button class="check-btn mt-3 px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition">
+      Проверить
+    </button>
+    
+    <div class="result hidden mt-3 p-3 rounded-lg">
+      <div class="flex items-start gap-2">
+        <span class="icon text-2xl"></span>
+        <div class="flex-1">
+          <div class="font-semibold status-text"></div>
+          <div class="explanation text-sm text-gray-700 mt-1"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Кнопка завершения -->
+<button id="completeBtn" class="w-full px-8 py-4 bg-green-600 text-white font-bold text-lg rounded-full hover:bg-green-700 transition shadow-lg">
+  ✅ Завершить урок
+</button>
+
+<script>
+const lessonId = {{ lesson.id }};
+</script>

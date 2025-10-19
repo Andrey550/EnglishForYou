@@ -1,0 +1,61 @@
+<!-- Слова -->
+<div class="mb-8">
+  <h2 class="text-xl font-bold text-gray-900 mb-4">📝 Новые слова</h2>
+  
+  <div class="overflow-x-auto">
+    <table class="w-full">
+      <thead>
+        <tr class="border-b-2 border-gray-200">
+          <th class="text-left py-3 px-4 font-semibold text-gray-700">Слово</th>
+          <th class="text-left py-3 px-4 font-semibold text-gray-700">Перевод</th>
+          <th class="text-left py-3 px-4 font-semibold text-gray-700">Пример</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for word in content.words %}
+        <tr class="border-b border-gray-100 hover:bg-blue-50 transition">
+          <td class="py-3 px-4 font-bold text-blue-600">{{ word.word }}</td>
+          <td class="py-3 px-4 text-gray-700">{{ word.translation }}</td>
+          <td class="py-3 px-4 text-gray-600 italic text-sm">{{ word.example }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Упражнения -->
+<div class="mb-8">
+  <h3 class="text-lg font-semibold text-gray-900 mb-4">Упражнения:</h3>
+  
+  {% for exercise in content.exercises %}
+  <div class="exercise mb-6 p-4 bg-gray-50 rounded-lg" data-id="{{ exercise.id }}" data-type="{{ exercise.type }}" data-answer="{{ exercise.correct_answer }}">
+    <div class="font-semibold text-gray-900 mb-3">{{ forloop.counter }}. {{ exercise.question }}</div>
+    
+    <input type="text" class="user-answer w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" placeholder="Ваш ответ...">
+    
+    <button class="check-btn mt-3 px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition">
+      Проверить
+    </button>
+    
+    <div class="result hidden mt-3 p-3 rounded-lg">
+      <div class="flex items-start gap-2">
+        <span class="icon text-2xl"></span>
+        <div class="flex-1">
+          <div class="font-semibold status-text"></div>
+          <div class="explanation text-sm text-gray-700 mt-1"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Кнопка завершения -->
+<button id="completeBtn" class="w-full px-8 py-4 bg-green-600 text-white font-bold text-lg rounded-full hover:bg-green-700 transition shadow-lg">
+  ✅ Завершить урок
+</button>
+
+<script>
+const lessonId = {{ lesson.id }};
+</script>

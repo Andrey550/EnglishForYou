@@ -1,0 +1,172 @@
+{% extends 'main/layout.html' %}
+
+{% block title %}Мои уроки - EnglishForYou{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-8">
+  <div class="max-w-5xl mx-auto px-4">
+    
+    <!-- Шапка со статистикой -->
+    <div class="mb-8 bg-white rounded-2xl shadow-lg p-6">
+      <h1 class="text-3xl font-bold text-gray-900 mb-4">📚 Мои уроки</h1>
+      
+      <div class="grid grid-cols-3 gap-4">
+        <div class="text-center p-4 bg-orange-50 rounded-lg">
+          <div class="text-3xl font-bold text-orange-600">🔥 {{ stats.days_streak }}</div>
+          <div class="text-sm text-gray-600 mt-1">Дней подряд</div>
+        </div>
+        
+        <div class="text-center p-4 bg-blue-50 rounded-lg">
+          <div class="text-3xl font-bold text-blue-600">📚 {{ stats.lessons_completed }}</div>
+          <div class="text-sm text-gray-600 mt-1">Уроков пройдено</div>
+        </div>
+        
+        <div class="text-center p-4 bg-green-50 rounded-lg">
+          <div class="text-3xl font-bold text-green-600">📝 {{ stats.words_learned }}</div>
+          <div class="text-sm text-gray-600 mt-1">Слов выучено</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Пустое состояние -->
+    {% if not has_blocks %}
+    <div class="bg-white rounded-2xl shadow-lg p-12 text-center">
+      <div class="text-6xl mb-4">🎯</div>
+      <h2 class="text-2xl font-bold text-gray-900 mb-2">Начните своё обучение!</h2>
+      <p class="text-gray-600 mb-6">Нажмите кнопку ниже, чтобы получить персонализированные уроки</p>
+    </div>
+    {% endif %}
+
+    <!-- Список блоков -->
+    {% for block in blocks %}
+    <div class="mb-6 {{ block.color_class }} border-2 rounded-2xl shadow-lg p-6">
+      <div class="flex justify-between items-start mb-4">
+        <div>
+          <h3 class="text-xl font-bold text-gray-900">{{ block.title }}</h3>
+          <p class="text-gray-600 text-sm mt-1">{{ block.description }}</p>
+          <div class="flex gap-3 mt-2">
+            <span class="text-xs font-semibold px-3 py-1 bg-white rounded-full">
+              Уровень: {{ block.level }}
+            </span>
+            <span class="text-xs font-semibold px-3 py-1 bg-white rounded-full">
+              Сложность: {{ block.difficulty_level }}/5
+            </span>
+          </div>
+        </div>
+        
+        {% if block.is_passed %}
+        <div class="text-3xl">✅</div>
+        {% elif block.is_completed %}
+        <div class="text-3xl">❌</div>
+        {% else %}
+        <div class="text-3xl">⏳</div>
+        {% endif %}
+      </div>
+
+      <!-- Список уроков -->
+      <div class="space-y-2 mt-4">
+        {% for lesson in block.lessons %}
+        <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+          {% if lesson.is_unlocked %}
+          <a href="{% url 'lesson_detail' lesson.id %}" class="flex items-center gap-3 flex-1 hover:text-blue-600 transition">
+            <span class="text-2xl">{{ lesson.icon }}</span>
+            <span class="{{ lesson.status_class }}">{{ lesson.title }}</span>
+            {% if lesson.best_score > 0 %}
+            <span class="ml-auto text-sm font-semibold">{{ lesson.best_score }}%</span>
+            {% endif %}
+          </a>
+          {% else %}
+          <div class="flex items-center gap-3 flex-1 text-gray-400">
+            <span class="text-2xl">🔒</span>
+            <span>{{ lesson.title }}</span>
+          </div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Прогресс блока -->
+      {% if block.completion_percent > 0 %}
+      <div class="mt-4">
+        <div class="flex justify-between text-xs text-gray-600 mb-1">
+          <span>Прогресс</span>
+          <span>{{ block.completion_percent }}%</span>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-2">
+          <div class="bg-blue-600 h-2 rounded-full transition-all" style="width: {{ block.completion_percent }}%"></div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+
+    <!-- Кнопка генерации -->
+    <div class="text-center mt-8">
+      <button 
+        id="generateBtn" 
+        {{ button.disabled }}
+        class="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-lg rounded-full shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0">
+        {{ button.text }}
+      </button>
+    </div>
+
+    <!-- Лоадер -->
+    <div id="loader" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-2xl p-8 text-center max-w-md">
+        <div class="animate-spin w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+        <p class="text-lg font-semibold text-gray-900">Создаём уроки специально для вас...</p>
+        <p class="text-sm text-gray-600 mt-2">Это займёт около 30 секунд</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+document.getElementById('generateBtn')?.addEventListener('click', async function() {
+  const loader = document.getElementById('loader');
+  loader.classList.remove('hidden');
+  this.disabled = true;
+
+  try {
+    const response = await fetch('/lessons/generate/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      }
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      location.reload();
+    } else {
+      alert('❌ ' + data.error);
+      console.error(data.error);
+    }
+  } catch (error) {
+    alert('❌ Ошибка сети. Попробуйте позже.');
+    console.error(error);
+  } finally {
+    loader.classList.add('hidden');
+    this.disabled = false;
+  }
+});
+</script>
+{% endblock %}

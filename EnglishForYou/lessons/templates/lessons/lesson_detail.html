@@ -1,0 +1,72 @@
+{% extends 'main/layout.html' %}
+{% load static %}
+
+{% block title %}{{ lesson.title }} - EnglishForYou{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-8">
+  <div class="max-w-4xl mx-auto px-4">
+    
+    <!-- Навигация -->
+    <div class="mb-6">
+      <a href="{% url 'lessons_board' %}" class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold">
+        <span>←</span> Вернуться к урокам
+      </a>
+    </div>
+
+    <!-- Заголовок урока -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+      <div class="flex justify-between items-start">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">{{ lesson.title }}</h1>
+          <p class="text-gray-600 mt-1">{{ block.title }}</p>
+          <div class="flex gap-2 mt-3">
+            <span class="text-xs font-semibold px-3 py-1 bg-blue-100 text-blue-700 rounded-full">
+              {{ lesson.get_lesson_type_display }}
+            </span>
+            <span class="text-xs font-semibold px-3 py-1 bg-gray-100 text-gray-700 rounded-full">
+              ~{{ lesson.estimated_time }} минут
+            </span>
+          </div>
+        </div>
+        
+        {% if progress.best_score > 0 %}
+        <div class="text-right">
+          <div class="text-3xl font-bold text-blue-600">{{ progress.best_score }}%</div>
+          <div class="text-xs text-gray-600">Лучший результат</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Контент урока -->
+    <div class="bg-white rounded-2xl shadow-lg p-8">
+      {% include component_template %}
+    </div>
+
+  </div>
+</div>
+
+<!-- Модальное окно результата -->
+<div id="resultModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
+    <div class="text-center">
+      <div id="resultIcon" class="text-6xl mb-4">🎉</div>
+      <h2 id="resultTitle" class="text-2xl font-bold text-gray-900 mb-2">Урок завершён!</h2>
+      <div id="resultScore" class="text-4xl font-bold text-blue-600 mb-4">0%</div>
+      <p id="resultMessage" class="text-gray-600 mb-6"></p>
+      
+      <div class="flex gap-3">
+        <a href="{% url 'lessons_board' %}" class="flex-1 px-6 py-3 bg-gray-200 text-gray-900 font-semibold rounded-full hover:bg-gray-300 transition text-center">
+          К урокам
+        </a>
+        <button id="nextLessonBtn" class="hidden flex-1 px-6 py-3 bg-blue-600 text-white font-semibold rounded-full hover:bg-blue-700 transition">
+          Следующий →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="{% static 'lessons/js/lesson.js' %}"></script>
+{% endblock %}

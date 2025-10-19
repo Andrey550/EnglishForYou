@@ -76,6 +76,10 @@ def check_answer(user_answer, correct_answer):
     Returns:
         bool
     """
+    # Проверка на None
+    if user_answer is None or correct_answer is None:
+        return False
+    
     # Для multiple_choice (индексы)
     if isinstance(correct_answer, int):
         try:
@@ -85,6 +89,9 @@ def check_answer(user_answer, correct_answer):
     
     # Для текстовых ответов
     if isinstance(user_answer, str) and isinstance(correct_answer, str):
+        # Проверка на пустые строки
+        if not user_answer.strip() or not correct_answer.strip():
+            return False
         return user_answer.strip().lower() == correct_answer.strip().lower()
     
     # Для true/false

@@ -4,6 +4,7 @@ from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.db.models import Q
+from django.db import transaction
 import json
 import logging
 
@@ -109,12 +110,22 @@ def lessons_board_view(request):
     }
     
     # Статистика пользователя
-    profile = request.user.profile
-    stats = {
-        'days_streak': profile.days_streak,
-        'lessons_completed': profile.lessons_completed,
-        'words_learned': profile.words_learned
-    }
+    try:
+        profile = request.user.profile
+        stats = {
+            'days_streak': profile.days_streak,
+            'lessons_completed': profile.lessons_completed,
+            'words_learned': profile.words_learned
+        }
+    except AttributeError:
+        # Если профиль не существует, создаём его
+        from user.models import UserProfile
+        profile = UserProfile.objects.create(user=request.user)
+        stats = {
+            'days_streak': 0,
+            'lessons_completed': 0,
+            'words_learned': 0
+        }
     
     context = {
         'blocks': blocks_data,
@@ -237,6 +248,13 @@ def save_progress_view(request):
         exercise_id = data.get('exercise_id')
         user_answer = data.get('user_answer')
         
+        # Валидация входных данных
+        if not lesson_id or not exercise_id or user_answer is None:
+            return JsonResponse({
+                'success': False,
+                'error': 'Отсутствуют обязательные параметры'
+            }, status=400)
+        
         # Получить урок
         lesson = get_object_or_404(Lesson, id=lesson_id)
         
@@ -286,6 +304,19 @@ def complete_lesson_view(request):
         lesson_id = data.get('lesson_id')
         exercises_data = data.get('exercises', {})
         
+        # Валидация входных данных
+        if not lesson_id:
+            return JsonResponse({
+                'success': False,
+                'error': 'Отсутствует lesson_id'
+            }, status=400)
+        
+        if not isinstance(exercises_data, dict):
+            return JsonResponse({
+                'success': False,
+                'error': 'Неверный формат exercises_data'
+            }, status=400)
+        
         # Получить урок
         lesson = get_object_or_404(Lesson, id=lesson_id)
         
@@ -305,50 +336,52 @@ def complete_lesson_view(request):
         # Определить первое завершение
         is_first_completion = not progress.is_completed
         
-        # Сохранить данные
-        progress.current_score = score
-        progress.exercises_data = exercises_data
-        progress.attempts += 1
-        
-        # Если результат лучше предыдущего
-        if score > progress.best_score:
-            progress.best_score = score
-        
-        # Если >= 80% - урок завершён
-        if score >= 80:
-            if not progress.is_completed:
-                progress.is_completed = True
-                progress.first_completed_at = timezone.now()
+        # Используем транзакцию для обеспечения целостности данных
+        with transaction.atomic():
+            # Сохранить данные
+            progress.current_score = score
+            progress.exercises_data = exercises_data
+            progress.attempts += 1
             
-            progress.save()
+            # Если результат лучше предыдущего
+            if score > progress.best_score:
+                progress.best_score = score
             
-            # Обновить статистику профиля
-            update_profile_stats(request.user, lesson, score, is_first_completion)
-            
-            # Разблокировать следующий урок
-            next_lesson = unlock_next_lesson(lesson)
-            
-            # Проверить завершение блока
-            check_block_completion(lesson.block)
-            
-            return JsonResponse({
-                'success': True,
-                'score': score,
-                'is_first_completion': is_first_completion,
-                'next_lesson_unlocked': next_lesson is not None,
-                'message': 'Урок успешно завершён! 🎉'
-            })
-        else:
-            # Не прошёл - сохраняем попытку
-            progress.save()
-            
-            return JsonResponse({
-                'success': True,
-                'score': score,
-                'is_first_completion': False,
-                'next_lesson_unlocked': False,
-                'message': f'Результат: {score}%. Нужно минимум 80% для завершения.'
-            })
+            # Если >= 80% - урок завершён
+            if score >= 80:
+                if not progress.is_completed:
+                    progress.is_completed = True
+                    progress.first_completed_at = timezone.now()
+                
+                progress.save()
+                
+                # Обновить статистику профиля
+                update_profile_stats(request.user, lesson, score, is_first_completion)
+                
+                # Разблокировать следующий урок
+                next_lesson = unlock_next_lesson(lesson)
+                
+                # Проверить завершение блока
+                check_block_completion(lesson.block)
+                
+                return JsonResponse({
+                    'success': True,
+                    'score': score,
+                    'is_first_completion': is_first_completion,
+                    'next_lesson_unlocked': next_lesson is not None,
+                    'message': 'Урок успешно завершён! 🎉'
+                })
+            else:
+                # Не прошёл - сохраняем попытку
+                progress.save()
+                
+                return JsonResponse({
+                    'success': True,
+                    'score': score,
+                    'is_first_completion': False,
+                    'next_lesson_unlocked': False,
+                    'message': f'Результат: {score}%. Нужно минимум 80% для завершения.'
+                })
         
     except json.JSONDecodeError:
         return JsonResponse({'success': False, 'error': 'Неверный формат данных'}, status=400)

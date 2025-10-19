@@ -3,6 +3,7 @@ import json
 import logging
 from django.conf import settings
 from django.db.models import Max
+from django.db import transaction
 from user_test.models import TestSession
 from lessons.models import LessonBlock, Lesson
 from .prompts import build_lesson_block_prompt
@@ -25,7 +26,13 @@ class LessonAIService:
         Returns:
             dict с данными для промпта
         """
-        profile = user.profile
+        # Проверка наличия профиля
+        try:
+            profile = user.profile
+        except AttributeError:
+            # Создаём профиль если не существует
+            from user.models import UserProfile
+            profile = UserProfile.objects.create(user=user)
         
         # Последний завершённый блок
         last_block = LessonBlock.objects.filter(
@@ -84,7 +91,13 @@ class LessonAIService:
         """
         try:
             # Собрать данные пользователя
-            profile = user.profile
+            try:
+                profile = user.profile
+            except AttributeError:
+                # Создаём профиль если не существует
+                from user.models import UserProfile
+                profile = UserProfile.objects.create(user=user)
+            
             user_data = {
                 'about': profile.about or 'не указано',
                 'interests': profile.interests or 'не указано',
@@ -132,6 +145,14 @@ class LessonAIService:
             # Парсинг JSON
             block_data = json.loads(content)
             
+            # Валидация JSON от AI
+            from lessons.utils.validators import validate_block_json
+            is_valid, error_message = validate_block_json(block_data)
+            
+            if not is_valid:
+                logger.error(f"Invalid AI response for user {user.username}: {error_message}")
+                return None
+            
             # Сохранить блок в БД
             lesson_block = self._save_block_to_db(user, block_data, progress_data)
             
@@ -159,32 +180,34 @@ class LessonAIService:
         Returns:
             LessonBlock
         """
-        # Определить order
-        last_order = LessonBlock.objects.filter(user=user).aggregate(
-            Max('order')
-        )['order__max'] or 0
-        new_order = last_order + 1
-        
-        # Создать блок
-        lesson_block = LessonBlock.objects.create(
-            user=user,
-            title=block_data['title'],
-            description=block_data['description'],
-            level=block_data['level'],
-            difficulty_level=block_data['difficulty_level'],
-            grammar_topic=block_data['grammar_topic'],
-            order=new_order
-        )
-        
-        # Создать 3 урока
-        for index, lesson_data in enumerate(block_data['lessons'], start=1):
-            lesson = Lesson.objects.create(
-                block=lesson_block,
-                lesson_type=lesson_data['lesson_type'],
-                title=lesson_data['title'],
-                content=lesson_data['content'],
-                order=index,
-                is_unlocked=(index == 1)  # Только первый урок разблокирован
+        # Используем транзакцию для атомарного создания блока и уроков
+        with transaction.atomic():
+            # Определить order
+            last_order = LessonBlock.objects.filter(user=user).aggregate(
+                Max('order')
+            )['order__max'] or 0
+            new_order = last_order + 1
+            
+            # Создать блок
+            lesson_block = LessonBlock.objects.create(
+                user=user,
+                title=block_data['title'],
+                description=block_data['description'],
+                level=block_data['level'],
+                difficulty_level=block_data['difficulty_level'],
+                grammar_topic=block_data['grammar_topic'],
+                order=new_order
             )
-        
-        return lesson_block
+            
+            # Создать 3 урока
+            for index, lesson_data in enumerate(block_data['lessons'], start=1):
+                lesson = Lesson.objects.create(
+                    block=lesson_block,
+                    lesson_type=lesson_data['lesson_type'],
+                    title=lesson_data['title'],
+                    content=lesson_data['content'],
+                    order=index,
+                    is_unlocked=(index == 1)  # Только первый урок разблокирован
+                )
+            
+            return lesson_block

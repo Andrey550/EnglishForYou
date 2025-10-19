@@ -16,7 +16,12 @@ def update_profile_stats(user, lesson, score, is_first_completion=False):
         score: int - результат в процентах
         is_first_completion: bool - первое завершение урока
     """
-    profile = user.profile
+    try:
+        profile = user.profile
+    except AttributeError:
+        # Создаём профиль если не существует
+        from user.models import UserProfile
+        profile = UserProfile.objects.create(user=user)
     
     # Обновляем только при первом успешном завершении
     if is_first_completion and score >= 80:
@@ -37,7 +42,12 @@ def update_days_streak(user):
     Args:
         user: User объект
     """
-    profile = user.profile
+    try:
+        profile = user.profile
+    except AttributeError:
+        # Создаём профиль если не существует
+        from user.models import UserProfile
+        profile = UserProfile.objects.create(user=user)
     
     # Получить последний пройденный блок
     last_passed_block = LessonBlock.objects.filter(
@@ -170,7 +180,12 @@ def check_level_up(user):
     
     # Каждые 15 блоков - повышение уровня
     if passed_blocks_count > 0 and passed_blocks_count % 15 == 0:
-        profile = user.profile
+        try:
+            profile = user.profile
+        except AttributeError:
+            # Создаём профиль если не существует
+            from user.models import UserProfile
+            profile = UserProfile.objects.create(user=user)
         current_level = profile.language_level
         
         # Карта повышения
@@ -205,7 +220,9 @@ def calculate_lesson_score(exercises_data, lesson_content):
     """
     exercises = lesson_content.get('exercises', [])
     
-    if not exercises:
+    # Защита от деления на ноль
+    if not exercises or len(exercises) == 0:
+        logger.warning("No exercises found in lesson content")
         return 0
     
     correct_count = 0

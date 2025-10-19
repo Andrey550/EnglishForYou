@@ -1,14 +1,15 @@
-<!-- Слова -->
+<!-- Vocabulary Section -->
 <div class="mb-8">
-  <h2 class="text-xl font-bold text-gray-900 mb-4">📝 Новые слова</h2>
+  <h2 class="text-2xl font-bold text-gray-900 mb-4">📝 Vocabulary List</h2>
+  <p class="text-gray-600 mb-4">Learn these new words and their usage. Pay attention to pronunciation and context!</p>
   
   <div class="overflow-x-auto">
-    <table class="w-full">
-      <thead>
-        <tr class="border-b-2 border-gray-200">
-          <th class="text-left py-3 px-4 font-semibold text-gray-700">Слово</th>
-          <th class="text-left py-3 px-4 font-semibold text-gray-700">Перевод</th>
-          <th class="text-left py-3 px-4 font-semibold text-gray-700">Пример</th>
+    <table class="w-full bg-white rounded-lg overflow-hidden">
+      <thead class="bg-blue-50">
+        <tr class="border-b-2 border-blue-200">
+          <th class="text-left py-3 px-4 font-semibold text-gray-800">English Word</th>
+          <th class="text-left py-3 px-4 font-semibold text-gray-800">Translation</th>
+          <th class="text-left py-3 px-4 font-semibold text-gray-800">Example Sentence</th>
         </tr>
       </thead>
       <tbody>
@@ -24,18 +25,50 @@
   </div>
 </div>
 
-<!-- Упражнения -->
+<!-- Vocabulary Tips -->
+<div class="mb-6">
+  <div class="bg-purple-50 border border-purple-200 p-4 rounded-lg">
+    <h3 class="font-semibold text-purple-900 mb-2">🎯 Learning Tips:</h3>
+    <ul class="space-y-1 text-purple-800 text-sm">
+      <li>• Practice pronunciation by reading the words aloud</li>
+      <li>• Create your own sentences using these new words</li>
+      <li>• Try to use at least 3 new words in conversation today</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Practice Exercises -->
 <div class="mb-8">
-  <h3 class="text-lg font-semibold text-gray-900 mb-4">Упражнения:</h3>
+  <h3 class="text-xl font-semibold text-gray-900 mb-4">✍️ Practice Exercises:</h3>
+  <p class="text-gray-600 mb-4">Test your knowledge of the new vocabulary. Use hints if you need help!</p>
   
   {% for exercise in content.exercises %}
-  <div class="exercise mb-6 p-4 bg-gray-50 rounded-lg" data-id="{{ exercise.id }}" data-type="{{ exercise.type }}" data-answer="{{ exercise.correct_answer }}">
-    <div class="font-semibold text-gray-900 mb-3">{{ forloop.counter }}. {{ exercise.question }}</div>
+  <div class="exercise mb-6 p-5 bg-gray-50 rounded-lg border border-gray-200" data-id="{{ exercise.id }}" data-type="{{ exercise.type }}" data-answer="{{ exercise.correct_answer }}">
+    <div class="flex justify-between items-start mb-3">
+      <div class="font-semibold text-gray-900">
+        Exercise {{ forloop.counter }}: {{ exercise.question }}
+      </div>
+      <button class="hint-btn text-sm px-3 py-1 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 transition">
+        💡 Hint
+      </button>
+    </div>
     
-    <input type="text" class="user-answer w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" placeholder="Ваш ответ...">
+    <div class="hint hidden mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+      <p class="text-sm text-blue-800">
+        {% if exercise.type == 'translate' %}
+        Remember the vocabulary list above. Think about the first letter of the word.
+        {% elif exercise.type == 'fill_blank' %}
+        Look at the context of the sentence. Which word from the vocabulary list fits best?
+        {% else %}
+        Review the vocabulary table and think about word meanings and usage.
+        {% endif %}
+      </p>
+    </div>
+    
+    <input type="text" class="user-answer w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" placeholder="Type your answer here...">
     
     <button class="check-btn mt-3 px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition">
-      Проверить
+      Check Answer
     </button>
     
     <div class="result hidden mt-3 p-3 rounded-lg">
@@ -51,9 +84,9 @@
   {% endfor %}
 </div>
 
-<!-- Кнопка завершения -->
+<!-- Complete Lesson Button -->
 <button id="completeBtn" class="w-full px-8 py-4 bg-green-600 text-white font-bold text-lg rounded-full hover:bg-green-700 transition shadow-lg">
-  ✅ Завершить урок
+  ✅ Complete Lesson
 </button>
 
 <script>

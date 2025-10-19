@@ -14,28 +14,146 @@
       </a>
     </div>
 
-    <!-- Заголовок урока -->
+    <!-- Lesson Header -->
     <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
       <div class="flex justify-between items-start">
-        <div>
-          <h1 class="text-2xl font-bold text-gray-900">{{ lesson.title }}</h1>
-          <p class="text-gray-600 mt-1">{{ block.title }}</p>
-          <div class="flex gap-2 mt-3">
-            <span class="text-xs font-semibold px-3 py-1 bg-blue-100 text-blue-700 rounded-full">
+        <div class="flex-1">
+          <h1 class="text-3xl font-bold text-gray-900">{{ lesson.title }}</h1>
+          <p class="text-lg text-gray-600 mt-2">{{ block.title }}</p>
+          
+          <!-- Lesson Type and Info -->
+          <div class="flex flex-wrap gap-3 mt-4">
+            <span class="text-sm font-semibold px-4 py-2 bg-blue-100 text-blue-700 rounded-full">
               {{ lesson.get_lesson_type_display }}
             </span>
-            <span class="text-xs font-semibold px-3 py-1 bg-gray-100 text-gray-700 rounded-full">
-              ~{{ lesson.estimated_time }} минут
+            <span class="text-sm font-semibold px-4 py-2 bg-purple-100 text-purple-700 rounded-full">
+              📊 Level {{ block.level }}
+            </span>
+            <span class="text-sm font-semibold px-4 py-2 bg-gray-100 text-gray-700 rounded-full">
+              ⏱️ ~{{ lesson.estimated_time }} minutes
+            </span>
+            <span class="text-sm font-semibold px-4 py-2 bg-yellow-100 text-yellow-700 rounded-full">
+              🎯 5 exercises
             </span>
           </div>
         </div>
         
         {% if progress.best_score > 0 %}
-        <div class="text-right">
-          <div class="text-3xl font-bold text-blue-600">{{ progress.best_score }}%</div>
-          <div class="text-xs text-gray-600">Лучший результат</div>
+        <div class="text-right ml-6">
+          <div class="text-4xl font-bold {% if progress.best_score >= 80 %}text-green-600{% else %}text-orange-500{% endif %}">
+            {{ progress.best_score }}%
+          </div>
+          <div class="text-sm text-gray-600">Best Result</div>
+          <div class="text-xs text-gray-500 mt-1">{{ progress.attempts }} attempts</div>
         </div>
         {% endif %}
+      </div>
+    </div>
+    
+    <!-- Lesson Description Card -->
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 mb-6 border border-blue-200">
+      <h2 class="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+        <span class="text-2xl">📚</span> What You'll Learn
+      </h2>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <h3 class="font-semibold text-gray-800 mb-2">Learning Objectives:</h3>
+          <ul class="space-y-2 text-gray-700">
+            {% if lesson.lesson_type == 'grammar' %}
+            <li class="flex items-start gap-2">
+              <span class="text-green-500 mt-1">✓</span>
+              <span>Understand the structure and rules of {{ lesson.title }}</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-500 mt-1">✓</span>
+              <span>Apply grammar rules in practical exercises</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-500 mt-1">✓</span>
+              <span>Recognize common mistakes and how to avoid them</span>
+            </li>
+            {% elif lesson.lesson_type == 'vocabulary' %}
+            <li class="flex items-start gap-2">
+              <span class="text-green-500 mt-1">✓</span>
+              <span>Learn {{ content.words|length }} new English words</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-500 mt-1">✓</span>
+              <span>Understand word usage in context</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-500 mt-1">✓</span>
+              <span>Practice pronunciation and spelling</span>
+            </li>
+            {% elif lesson.lesson_type == 'reading' %}
+            <li class="flex items-start gap-2">
+              <span class="text-green-500 mt-1">✓</span>
+              <span>Improve reading comprehension skills</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-500 mt-1">✓</span>
+              <span>Learn vocabulary in context</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-500 mt-1">✓</span>
+              <span>Practice critical thinking with questions</span>
+            </li>
+            {% endif %}
+          </ul>
+        </div>
+        
+        <div>
+          <h3 class="font-semibold text-gray-800 mb-2">Lesson Structure:</h3>
+          <ul class="space-y-2 text-gray-700">
+            {% if lesson.lesson_type == 'grammar' %}
+            <li class="flex items-center gap-2">
+              <span class="text-blue-500">📖</span>
+              <span>Grammar rule explanation</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="text-blue-500">💡</span>
+              <span>Clear examples and patterns</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="text-blue-500">✍️</span>
+              <span>5 interactive exercises</span>
+            </li>
+            {% elif lesson.lesson_type == 'vocabulary' %}
+            <li class="flex items-center gap-2">
+              <span class="text-blue-500">📝</span>
+              <span>Word list with translations</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="text-blue-500">💬</span>
+              <span>Example sentences</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="text-blue-500">🎯</span>
+              <span>Practice exercises</span>
+            </li>
+            {% elif lesson.lesson_type == 'reading' %}
+            <li class="flex items-center gap-2">
+              <span class="text-blue-500">📄</span>
+              <span>Engaging text passage</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="text-blue-500">📚</span>
+              <span>Vocabulary glossary</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="text-blue-500">❓</span>
+              <span>Comprehension questions</span>
+            </li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+      
+      <div class="mt-4 p-3 bg-white/70 rounded-lg">
+        <p class="text-sm text-gray-600">
+          <span class="font-semibold">💡 Tip:</span> Take your time with each exercise. 
+          Use the hint button if you need help. Remember, practice makes perfect!
+        </p>
       </div>
     </div>
 

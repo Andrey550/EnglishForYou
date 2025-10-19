@@ -31,6 +31,27 @@ function getUserAnswer(exercise) {
   return '';
 }
 
+// Обработка кнопок подсказок
+document.querySelectorAll('.hint-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const exercise = this.closest('.exercise');
+    const hintDiv = exercise.querySelector('.hint');
+    
+    if (hintDiv) {
+      // Toggle hint visibility
+      if (hintDiv.classList.contains('hidden')) {
+        hintDiv.classList.remove('hidden');
+        this.textContent = '💡 Hide Hint';
+        this.classList.add('bg-yellow-200');
+      } else {
+        hintDiv.classList.add('hidden');
+        this.textContent = '💡 Hint';
+        this.classList.remove('bg-yellow-200');
+      }
+    }
+  });
+});
+
 // Проверка одного упражнения (AJAX)
 document.querySelectorAll('.check-btn').forEach(btn => {
   btn.addEventListener('click', async function() {
@@ -40,7 +61,7 @@ document.querySelectorAll('.check-btn').forEach(btn => {
     
     // Проверка что ответ не пустой
     if (!userAnswer) {
-      alert('Пожалуйста, выберите или введите ответ');
+      alert('Please select or enter an answer');
       return;
     }
     
@@ -72,13 +93,13 @@ document.querySelectorAll('.check-btn').forEach(btn => {
       if (data.is_correct) {
         resultDiv.classList.add('bg-green-50');
         iconSpan.textContent = '✅';
-        statusText.textContent = 'Правильно!';
+        statusText.textContent = 'Correct!';
         statusText.classList.remove('text-red-700');
         statusText.classList.add('text-green-700');
       } else {
         resultDiv.classList.add('bg-red-50');
         iconSpan.textContent = '❌';
-        statusText.textContent = 'Неправильно';
+        statusText.textContent = 'Incorrect';
         statusText.classList.remove('text-green-700');
         statusText.classList.add('text-red-700');
       }
@@ -91,7 +112,7 @@ document.querySelectorAll('.check-btn').forEach(btn => {
       
     } catch (error) {
       console.error('Error checking answer:', error);
-      alert('Ошибка при проверке ответа. Попробуйте ещё раз.');
+      alert('Error checking answer. Please try again.');
     }
   });
 });
@@ -131,13 +152,13 @@ document.getElementById('completeBtn')?.addEventListener('click', async function
   
   // Проверка что все упражнения выполнены
   if (!allAnswered) {
-    alert('⚠️ Пожалуйста, выполните все упражнения перед завершением урока');
+    alert('⚠️ Please complete all exercises before finishing the lesson');
     return;
   }
   
   // Заблокировать кнопку
   this.disabled = true;
-  this.textContent = 'Сохранение...';
+  this.textContent = 'Saving...';
   
   try {
     // AJAX запрос на завершение
@@ -159,16 +180,16 @@ document.getElementById('completeBtn')?.addEventListener('click', async function
       // Показать модальное окно с результатом
       showResultModal(data);
     } else {
-      alert('❌ ' + (data.error || 'Ошибка при сохранении урока'));
+      alert('❌ ' + (data.error || 'Error saving lesson'));
       this.disabled = false;
-      this.textContent = '✅ Завершить урок';
+      this.textContent = '✅ Complete Lesson';
     }
     
   } catch (error) {
     console.error('Error completing lesson:', error);
-    alert('❌ Ошибка сети. Попробуйте ещё раз.');
+    alert('❌ Network error. Please try again.');
     this.disabled = false;
-    this.textContent = '✅ Завершить урок';
+    this.textContent = '✅ Complete Lesson';
   }
 });
 
@@ -186,7 +207,7 @@ function showResultModal(data) {
   
   if (data.score >= 80) {
     icon.textContent = '🎉';
-    title.textContent = 'Урок завершён!';
+    title.textContent = 'Lesson Complete!';
     message.textContent = data.message;
     score.classList.remove('text-red-600');
     score.classList.add('text-green-600');
@@ -198,7 +219,7 @@ function showResultModal(data) {
     }
   } else {
     icon.textContent = '😕';
-    title.textContent = 'Попробуйте ещё раз';
+    title.textContent = 'Try Again';
     message.textContent = data.message;
     score.classList.remove('text-green-600');
     score.classList.add('text-red-600');

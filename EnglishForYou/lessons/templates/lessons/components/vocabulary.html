@@ -59,13 +59,45 @@
         Remember the vocabulary list above. Think about the first letter of the word.
         {% elif exercise.type == 'fill_blank' %}
         Look at the context of the sentence. Which word from the vocabulary list fits best?
+        {% elif exercise.type == 'correct_mistake' %}
+        Look for spelling or word form mistakes. Fix the incorrect parts.
         {% else %}
         Review the vocabulary table and think about word meanings and usage.
         {% endif %}
       </p>
     </div>
     
+    {% if exercise.type == 'translate' or exercise.type == 'fill_blank' or exercise.type == 'correct_mistake' %}
     <input type="text" class="user-answer w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" placeholder="Type your answer here...">
+    {% elif exercise.type == 'multiple_choice' %}
+    {% if exercise.options and exercise.options|length > 0 %}
+    <div class="space-y-2">
+      {% for option in exercise.options %}
+      <label class="flex items-center gap-3 p-3 border-2 border-gray-300 rounded-lg cursor-pointer hover:bg-white transition">
+        <input type="radio" name="exercise_{{ exercise.id }}" value="{{ forloop.counter0 }}" class="user-answer w-4 h-4">
+        <span>{{ option }}</span>
+      </label>
+      {% endfor %}
+    </div>
+    {% else %}
+    <!-- Fallback when options are missing -->
+    <input type="text" class="user-answer w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" placeholder="Type your answer here...">
+    {% endif %}
+    {% elif exercise.type == 'true_false' %}
+    <div class="space-y-2">
+      <label class="flex items-center gap-3 p-3 border-2 border-gray-300 rounded-lg cursor-pointer hover:bg-white transition">
+        <input type="radio" name="exercise_{{ exercise.id }}" value="true" class="user-answer w-4 h-4">
+        <span>True</span>
+      </label>
+      <label class="flex items-center gap-3 p-3 border-2 border-gray-300 rounded-lg cursor-pointer hover:bg-white transition">
+        <input type="radio" name="exercise_{{ exercise.id }}" value="false" class="user-answer w-4 h-4">
+        <span>False</span>
+      </label>
+    </div>
+    {% else %}
+    <!-- Fallback: show text input for any unknown exercise types -->
+    <input type="text" class="user-answer w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" placeholder="Type your answer here...">
+    {% endif %}
     
     <button class="check-btn mt-3 px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition">
       Check Answer

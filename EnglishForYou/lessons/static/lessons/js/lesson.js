@@ -25,10 +25,19 @@ function getUserAnswer(exercise) {
   
   if (type === 'multiple_choice' || type === 'true_false') {
     const checked = exercise.querySelector('input.user-answer:checked');
-    return checked ? checked.value : '';
+    if (checked) return checked.value;
+    // Fallback: if options are missing, allow text input answer
+    const textFallback = exercise.querySelector('input.user-answer[type="text"], textarea.user-answer');
+    return textFallback ? textFallback.value.trim() : '';
   }
   
-  return '';
+  // Fallback for any unknown types: try text input first, then any checked input
+  const anyText = exercise.querySelector('input.user-answer[type="text"], textarea.user-answer');
+  if (anyText) return anyText.value.trim();
+  const anyChecked = exercise.querySelector('input.user-answer:checked');
+  if (anyChecked) return anyChecked.value;
+  const anyInput = exercise.querySelector('input.user-answer');
+  return anyInput ? (anyInput.value || '').trim() : '';
 }
 
 // Обработка кнопок подсказок

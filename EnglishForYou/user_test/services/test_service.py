@@ -86,6 +86,8 @@ class AdaptiveTestService:
     
     def _find_question_in_db(self, level, answered_ids, avoid_topics=None):
         """Ищет вопрос в базе данных"""
+        import random
+        
         query = Question.objects.filter(
             level=level,
             is_active=True
@@ -95,11 +97,17 @@ class AdaptiveTestService:
         if avoid_topics:
             query = query.exclude(topic__code__in=avoid_topics)
         
-        # Случайный выбор
-        return query.order_by('?').first()
+        # Оптимизированный случайный выбор
+        # Получаем только ID для быстрой выборки
+        question_ids = list(query.values_list('id', flat=True)[:100])  # Ограничиваем выборку 100 вопросами
+        if question_ids:
+            random_id = random.choice(question_ids)
+            return Question.objects.get(id=random_id)
+        return None
     
     def _find_fallback_question(self, current_level, answered_ids):
         """Ищет вопрос на соседних уровнях"""
+        import random
         levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
         
         try:
@@ -109,26 +117,38 @@ class AdaptiveTestService:
         
         # Сначала пробуем уровень выше
         if current_idx < len(levels) - 1:
-            question = Question.objects.filter(
+            query = Question.objects.filter(
                 level=levels[current_idx + 1],
                 is_active=True
-            ).exclude(id__in=answered_ids).order_by('?').first()
-            if question:
-                return question
+            ).exclude(id__in=answered_ids)
+            
+            question_ids = list(query.values_list('id', flat=True)[:50])
+            if question_ids:
+                random_id = random.choice(question_ids)
+                return Question.objects.get(id=random_id)
         
         # Потом уровень ниже
         if current_idx > 0:
-            question = Question.objects.filter(
+            query = Question.objects.filter(
                 level=levels[current_idx - 1],
                 is_active=True
-            ).exclude(id__in=answered_ids).order_by('?').first()
-            if question:
-                return question
+            ).exclude(id__in=answered_ids)
+            
+            question_ids = list(query.values_list('id', flat=True)[:50])
+            if question_ids:
+                random_id = random.choice(question_ids)
+                return Question.objects.get(id=random_id)
         
         # Любой вопрос
-        return Question.objects.filter(
+        query = Question.objects.filter(
             is_active=True
-        ).exclude(id__in=answered_ids).order_by('?').first()
+        ).exclude(id__in=answered_ids)
+        
+        question_ids = list(query.values_list('id', flat=True)[:100])
+        if question_ids:
+            random_id = random.choice(question_ids)
+            return Question.objects.get(id=random_id)
+        return None
     
     def _generate_and_save_question(self, level, avoid_topics=None):
         """Генерирует вопрос через AI и сохраняет в базу"""

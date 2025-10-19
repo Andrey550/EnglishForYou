@@ -67,28 +67,22 @@ def logout_view(request):
 @login_required(login_url='login')
 def user_profile_view(request):
     user = request.user
-    profile = user.profile
-    
-    def normalize_csv(s: str) -> str:
-        if not s:
-            return ''
-        s = s.replace('|', ',')
-        items = [x.strip() for x in s.split(',') if x.strip()]
-        return ','.join(items)
-    
-    def csv_to_list(s: str):
-        if not s:
-            return []
-        s = s.replace('|', ',')
-        return [x.strip() for x in s.split(',') if x.strip()]
+    # Добавляем проверку существования профиля
+    try:
+        profile = user.profile
+    except:
+        # Если профиля нет, создаем его
+        from user.models import Profile
+        profile = Profile.objects.create(user=user)
     
     if request.method == 'POST':
         interests = request.POST.get('interests', '')
         goals = request.POST.get('goals', '')
         about = request.POST.get('about', '')
         
-        profile.interests = normalize_csv(interests)
-        profile.learning_goals = normalize_csv(goals)
+        # Используем методы из модели Profile вместо дублирования
+        profile.set_interests_list([x.strip() for x in interests.split(',') if x.strip()])
+        profile.set_goals_list([x.strip() for x in goals.split(',') if x.strip()])
         profile.about = about.strip()
         profile.save()
         
@@ -110,7 +104,7 @@ def user_profile_view(request):
         'interests_list': profile.get_interests_list(),
         'goals_list': profile.get_goals_list(),
         'available_interests': AVAILABLE_INTERESTS,
-        'recent_activities': csv_to_list(profile.last_activity)[:5],
+        'recent_activities': profile._normalize_csv_to_list(profile.last_activity)[:5],
         'language_level': profile.language_level,
         'last_test': last_test,
     }

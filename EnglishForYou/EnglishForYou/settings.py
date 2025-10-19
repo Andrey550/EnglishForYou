@@ -34,7 +34,8 @@ INSTALLED_APPS = [
     'main',
     'user',
     'user_test',
-    
+    'lessons',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

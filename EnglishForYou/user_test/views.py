@@ -835,39 +835,20 @@ def estimate_level_simple(session):
     Простая оценка уровня на основе процента правильных ответов.
     
     Используется для быстрой оценки уровня владения языком.
-    Может быть заменена на более сложный алгоритм в будущем.
+    Использует функцию analyze_session_simple для избежания дублирования кода.
     
     Args:
         session (TestSession): Сессия теста
     
     Returns:
         str: Уровень (A1-C2)
-    
-    Шкала оценки:
-        >= 90% -> C2
-        >= 80% -> C1
-        >= 70% -> B2
-        >= 55% -> B1
-        >= 40% -> A2
-        < 40%  -> A1
     """
     if session.total_questions == 0:
         return 'B1'
-
-    percentage = session.percentage
-
-    if percentage >= 90:
-        return 'C2'
-    elif percentage >= 80:
-        return 'C1'
-    elif percentage >= 70:
-        return 'B2'
-    elif percentage >= 55:
-        return 'B1'
-    elif percentage >= 40:
-        return 'A2'
-    else:
-        return 'A1'
+    
+    # Используем analyze_session_simple для получения уровня
+    results = analyze_session_simple(session)
+    return results['level']
 
 
 @login_required(login_url='login')

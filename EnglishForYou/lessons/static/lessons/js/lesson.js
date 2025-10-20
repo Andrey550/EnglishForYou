@@ -49,12 +49,34 @@ document.querySelectorAll('.hint-btn').forEach(btn => {
     if (hintDiv) {
       // Toggle hint visibility
       if (hintDiv.classList.contains('hidden')) {
+        // Вставить правильный ответ в подсказку
+        try {
+          const type = exercise.dataset.type;
+          const rawAnswer = exercise.dataset.answer;
+          let displayAnswer = rawAnswer;
+          
+          if (type === 'multiple_choice') {
+            const idx = parseInt(rawAnswer, 10);
+            const optionSpans = exercise.querySelectorAll('.space-y-2 label span');
+            if (!Number.isNaN(idx) && optionSpans[idx]) {
+              displayAnswer = optionSpans[idx].textContent.trim();
+            }
+          } else if (type === 'true_false') {
+            if (rawAnswer === 'true' || rawAnswer === true) displayAnswer = 'Верно';
+            else if (rawAnswer === 'false' || rawAnswer === false) displayAnswer = 'Неверно';
+          }
+          const ca = hintDiv.querySelector('.correct-answer');
+          if (ca) ca.textContent = 'Правильный ответ: ' + (displayAnswer ?? '—');
+        } catch (e) {
+          console.warn('Не удалось отобразить правильный ответ в подсказке:', e);
+        }
+        
         hintDiv.classList.remove('hidden');
-        this.textContent = '💡 Hide Hint';
+        this.textContent = '💡 Скрыть подсказку';
         this.classList.add('bg-yellow-200');
       } else {
         hintDiv.classList.add('hidden');
-        this.textContent = '💡 Hint';
+        this.textContent = '💡 Подсказка';
         this.classList.remove('bg-yellow-200');
       }
     }

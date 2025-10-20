@@ -49,26 +49,27 @@
         Exercise {{ forloop.counter }}: {{ exercise.question }}
       </div>
       <button class="hint-btn text-sm px-3 py-1 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 transition">
-        💡 Hint
+        💡 Подсказка
       </button>
     </div>
     
     <div class="hint hidden mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
       <p class="text-sm text-blue-800">
         {% if exercise.type == 'translate' %}
-        Remember the vocabulary list above. Think about the first letter of the word.
+        Вспомните список слов выше. Подумайте о первой букве и значении слова.
         {% elif exercise.type == 'fill_blank' %}
-        Look at the context of the sentence. Which word from the vocabulary list fits best?
+        Посмотрите на контекст предложения. Какое слово из списка лучше всего подходит?
         {% elif exercise.type == 'correct_mistake' %}
-        Look for spelling or word form mistakes. Fix the incorrect parts.
+        Найдите ошибки в написании или форме слова и исправьте их.
         {% else %}
-        Review the vocabulary table and think about word meanings and usage.
+        Просмотрите таблицу слов и вспомните их значения и употребление.
         {% endif %}
       </p>
+      <div class="correct-answer text-sm text-blue-900 mt-2"></div>
     </div>
     
     {% if exercise.type == 'translate' or exercise.type == 'fill_blank' or exercise.type == 'correct_mistake' %}
-    <input type="text" class="user-answer w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" placeholder="Type your answer here...">
+    <input type="text" class="user-answer w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" placeholder="Введите ваш ответ...">
     {% elif exercise.type == 'multiple_choice' %}
     {% if exercise.options and exercise.options|length > 0 %}
     <div class="space-y-2">
@@ -81,7 +82,7 @@
     </div>
     {% else %}
     <!-- Fallback when options are missing -->
-    <input type="text" class="user-answer w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" placeholder="Type your answer here...">
+    <input type="text" class="user-answer w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" placeholder="Введите ваш ответ...">
     {% endif %}
     {% elif exercise.type == 'true_false' %}
     <div class="space-y-2">
@@ -96,7 +97,7 @@
     </div>
     {% else %}
     <!-- Fallback: show text input for any unknown exercise types -->
-    <input type="text" class="user-answer w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" placeholder="Type your answer here...">
+    <input type="text" class="user-answer w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" placeholder="Введите ваш ответ...">
     {% endif %}
     
     <button class="check-btn mt-3 px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition">

@@ -60,20 +60,21 @@
         Exercise {{ forloop.counter }}: {{ exercise.question }}
       </div>
       <button class="hint-btn text-sm px-3 py-1 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 transition">
-        💡 Hint
+        💡 Подсказка
       </button>
     </div>
     
     <div class="hint hidden mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
       <p class="text-sm text-blue-800">
         {% if exercise.type == 'fill_blank' %}
-        Think about the subject of the sentence and the correct verb form.
+        Подумайте о подлежащем и правильной форме глагола.
         {% elif exercise.type == 'correct_mistake' %}
-        Look for errors in verb forms, word order, or missing words.
+        Найдите ошибки в формах глаголов, порядке слов или отсутствующих словах.
         {% elif exercise.type == 'multiple_choice' %}
-        Eliminate obviously wrong answers first, then choose the most grammatically correct option.
+        Сначала исключите очевидно неверные варианты, затем выберите грамматически верный.
         {% endif %}
       </p>
+      <div class="correct-answer text-sm text-blue-900 mt-2"></div>
     </div>
     
     {% if exercise.type == 'fill_blank' or exercise.type == 'correct_mistake' %}

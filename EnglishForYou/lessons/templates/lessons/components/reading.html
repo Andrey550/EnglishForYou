@@ -46,7 +46,7 @@
         Question {{ forloop.counter }}: {{ exercise.question }}
       </div>
       <button class="hint-btn text-sm px-3 py-1 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 transition">
-        💡 Hint
+        💡 Подсказка
       </button>
     </div>
     
@@ -56,13 +56,19 @@
         Re-read the relevant part of the text. Look for keywords from the question in the passage.
         {% elif exercise.type == 'true_false' %}
         Find the specific information in the text. Is it exactly as stated in the question?
+        {% elif exercise.type == 'fill_blank' %}
+        Look for context clues around the blank to determine the missing word.
+        {% elif exercise.type == 'correct_mistake' %}
+        Identify grammar or spelling mistakes in the sentence and correct them.
         {% else %}
         Think about what the text says explicitly and what can be inferred.
         {% endif %}
       </p>
+      <div class="correct-answer text-sm text-blue-900 mt-2"></div>
     </div>
     
     {% if exercise.type == 'multiple_choice' %}
+    {% if exercise.options and exercise.options|length > 0 %}
     <div class="space-y-2">
       {% for option in exercise.options %}
       <label class="flex items-center gap-3 p-3 border-2 border-gray-300 rounded-lg cursor-pointer hover:bg-white transition">
@@ -71,6 +77,10 @@
       </label>
       {% endfor %}
     </div>
+    {% else %}
+    <!-- Fallback when options are missing -->
+    <input type="text" class="user-answer w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" placeholder="Введите ваш ответ...">
+    {% endif %}
     {% elif exercise.type == 'true_false' %}
     <div class="space-y-2">
       <label class="flex items-center gap-3 p-3 border-2 border-gray-300 rounded-lg cursor-pointer hover:bg-white transition">
@@ -82,12 +92,16 @@
         <span>False</span>
       </label>
     </div>
+    {% elif exercise.type == 'fill_blank' or exercise.type == 'correct_mistake' %}
+    <input type="text" class="user-answer w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" placeholder="Type your answer here...">
+    {% else %}
+    <!-- Fallback: show text input for any unknown exercise types -->
+    <input type="text" class="user-answer w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" placeholder="Type your answer here...">
     {% endif %}
     
     <button class="check-btn mt-3 px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition">
       Check Answer
     </button>
-    
     <div class="result hidden mt-3 p-3 rounded-lg">
       <div class="flex items-start gap-2">
         <span class="icon text-2xl"></span>

@@ -1,15 +1,40 @@
+"""
+Файл: prompts.py
+Описание: Построение промптов для генерации контента уроков через AI
+
+Этот файл содержит функции для создания промптов для OpenAI API:
+- build_block_info_prompt() - промпт для генерации информации о блоке (название, тема, уровень)
+- build_grammar_lesson_prompt() - промпт для генерации урока грамматики
+- build_vocabulary_lesson_prompt() - промпт для генерации урока лексики
+- build_reading_lesson_prompt() - промпт для генерации урока чтения
+- build_lesson_block_prompt() - промпт для генерации полного блока (устаревшая версия)
+
+Все промпты адаптируются под:
+- Уровень пользователя (A1-C2)
+- Сложность (1-5)
+- Интересы и цели обучения
+- Пройденные темы
+"""
+
+
 def build_block_info_prompt(user_data, progress_data):
     """
     Построение промпта для генерации информации о блоке (название и темы)
     
+    Функция создает промпт для AI, который генерирует:
+    - Название блока
+    - Описание блока
+    - Грамматическую тему
+    - Уровень и сложность
+    
     Args:
-        user_data: dict с данными пользователя
-        progress_data: dict с данными прогресса
+        user_data: dict с данными пользователя (about, interests, learning_goals)
+        progress_data: dict с данными прогресса (level, difficulty, covered_topics)
     Returns:
-        str: промпт для генерации информации о блоке
+        str: промпт для отправки в OpenAI API
     """
     
-    # Формирование списка пройденных тем
+    # Формируем строку с пройденными темами для исключения повторов
     covered_topics_str = ', '.join(progress_data.get('covered_topics', [])) if progress_data.get('covered_topics') else 'нет'
     
     prompt = f"""Создай информацию о блоке из 3 уроков для изучения английского языка.
@@ -55,14 +80,23 @@ def build_grammar_lesson_prompt(block_info, progress_data):
     """
     Построение промпта для генерации урока грамматики
     
+    Функция создает промпт для AI, который генерирует урок грамматики с:
+    - Объяснением правила на русском языке
+    - Примерами использования
+    - 5 упражнениями разных типов (fill_blank, multiple_choice, correct_mistake)
+    - Объяснением правильных ответов
+    
     Args:
-        block_info: dict с информацией о блоке
-        progress_data: dict с данными прогресса
+        block_info: dict с информацией о блоке (title, grammar_topic, level)
+        progress_data: dict с данными прогресса (difficulty)
     Returns:
-        str: промпт для генерации урока грамматики
+        str: промпт для отправки в OpenAI API
     """
     
+    # Определяем сложность упражнений на основе уровня пользователя
     difficulty = progress_data.get('difficulty', 1)
+    
+    # Карта сложности: от простых до сложных упражнений
     difficulty_params = {
         1: 'простые, очевидные ответы',
         2: 'простые',
@@ -71,6 +105,7 @@ def build_grammar_lesson_prompt(block_info, progress_data):
         5: 'сложные, требуют размышления'
     }
     
+    # Получаем текстовое описание сложности для промпта
     exercise_difficulty = difficulty_params.get(difficulty, 'простые')
     
     prompt = f"""Создай урок грамматики по теме "{block_info['title']}".
@@ -129,15 +164,24 @@ def build_vocabulary_lesson_prompt(block_info, user_data, progress_data):
     """
     Построение промпта для генерации урока лексики
     
+    Функция создает промпт для AI, который генерирует урок лексики с:
+    - Списком слов (10-18 слов в зависимости от сложности)
+    - Переводом и примерами для каждого слова
+    - 5 упражнениями на закрепление (translate, fill_blank, matching)
+    - Словами, связанными с интересами пользователя
+    
     Args:
-        block_info: dict с информацией о блоке
-        user_data: dict с данными пользователя
-        progress_data: dict с данными прогресса
+        block_info: dict с информацией о блоке (title, level)
+        user_data: dict с данными пользователя (interests)
+        progress_data: dict с данными прогресса (difficulty)
     Returns:
-        str: промпт для генерации урока лексики
+        str: промпт для отправки в OpenAI API
     """
     
+    # Определяем количество слов на основе сложности
     difficulty = progress_data.get('difficulty', 1)
+    
+    # Карта количества слов: чем выше сложность, тем больше слов
     word_counts = {1: 10, 2: 12, 3: 13, 4: 15, 5: 18}
     num_words = word_counts.get(difficulty, 10)
     
@@ -195,15 +239,25 @@ def build_reading_lesson_prompt(block_info, user_data, progress_data):
     """
     Построение промпта для генерации урока чтения
     
+    Функция создает промпт для AI, который генерирует урок чтения с:
+    - Текстом на английском (200-400 слов в зависимости от сложности)
+    - Использованием изучаемой грамматической конструкции
+    - Глоссарием из 5-7 сложных слов с переводом
+    - 5 вопросами на понимание текста (multiple_choice, true_false, short_answer)
+    - Темой, связанной с интересами пользователя
+    
     Args:
-        block_info: dict с информацией о блоке
-        user_data: dict с данными пользователя
-        progress_data: dict с данными прогресса
+        block_info: dict с информацией о блоке (title, grammar_topic, level)
+        user_data: dict с данными пользователя (interests, learning_goals)
+        progress_data: dict с данными прогресса (difficulty)
     Returns:
-        str: промпт для генерации урока чтения
+        str: промпт для отправки в OpenAI API
     """
     
+    # Определяем длину текста на основе сложности
     difficulty = progress_data.get('difficulty', 1)
+    
+    # Карта длины текста: чем выше сложность, тем длиннее текст
     text_lengths = {1: 200, 2: 250, 3: 300, 4: 350, 5: 400}
     text_length = text_lengths.get(difficulty, 200)
     
@@ -262,14 +316,26 @@ def build_reading_lesson_prompt(block_info, user_data, progress_data):
 
 def build_lesson_block_prompt(user_data, progress_data):
     """
-    Построение промпта для генерации блока уроков
+    Построение промпта для генерации полного блока уроков (УСТАРЕВШАЯ ВЕРСИЯ)
+    
+    ВНИМАНИЕ: Эта функция больше не используется в асинхронной генерации!
+    Используется старым синхронным методом для генерации всех 3 уроков за один запрос.
+    
+    Функция создает промпт для AI, который генерирует полный блок с:
+    - Информацией о блоке (название, тема, уровень)
+    - Уроком грамматики с правилом и 5 упражнениями
+    - Уроком лексики с 10-18 словами и 5 упражнениями
+    - Уроком чтения с текстом 200-400 слов и 5 вопросами
     
     Args:
-        user_data: dict с данными пользователя (profile, interests, goals, etc.)
+        user_data: dict с данными пользователя (about, interests, learning_goals)
         progress_data: dict с данными прогресса (level, difficulty, covered_topics, test_scores)
+    Returns:
+        str: промпт для отправки в OpenAI API
     """
     
-    # Параметры по сложности
+    # Параметры генерации в зависимости от сложности (1-5)
+    # Определяют количество слов, длину текста и сложность упражнений
     difficulty_params = {
         1: {
             'vocabulary_words': 10,
@@ -303,10 +369,13 @@ def build_lesson_block_prompt(user_data, progress_data):
         }
     }
     
+    # Получаем текущую сложность из прогресса пользователя
     difficulty = progress_data.get('difficulty', 1)
+    
+    # Выбираем параметры для этой сложности
     params = difficulty_params.get(difficulty, difficulty_params[1])
     
-    # Формирование списка пройденных тем
+    # Формируем строку с пройденными темами для исключения повторов
     covered_topics_str = ', '.join(progress_data.get('covered_topics', [])) if progress_data.get('covered_topics') else 'нет'
     
     prompt = f"""Создай блок из 3 уроков для изучения английского языка.

@@ -1,10 +1,20 @@
+"""forms.py - Формы для регистрации и авторизации пользователей.
+
+Этот файл содержит формы для регистрации новых пользователей и входа в систему.
+Все формы имеют красивые стили TailwindCSS.
+"""
+
 from django.contrib.auth.models import User
 from django import forms
 
+
+# Форма регистрации нового пользователя
 class RegisterForm(forms.ModelForm):
     class Meta:
         model = User
+        # Поля которые будут в форме регистрации
         fields = ['username', 'last_name', 'email', 'password']
+        # Стили для каждого поля с использованием TailwindCSS
         widgets = {
             'username': forms.TextInput(attrs={
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg text-base transition-all focus:outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(5,150,105,0.1)] focus:-translate-y-px placeholder:text-gray-400',
@@ -22,7 +32,9 @@ class RegisterForm(forms.ModelForm):
                 'class': 'w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg text-base transition-all focus:outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(5,150,105,0.1)] focus:-translate-y-px placeholder:text-gray-400',
                 'placeholder': 'Создайте надежный пароль'}),
         }
-        
+
+
+# Форма входа в систему
 class LoginForm(forms.Form):
     email = forms.EmailField(
         widget=forms.EmailInput(attrs={

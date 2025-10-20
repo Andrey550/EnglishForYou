@@ -1,0 +1,14 @@
+# Основные зависимости Django проекта EnglishForYou
+# Фреймворк
+Django==5.2.6
+
+# API и интеграции
+openai==1.50.0
+
+# Утилиты
+python-dotenv==1.0.1
+
+# Опциональные зависимости для production
+# gunicorn==21.2.0
+# whitenoise==6.6.0
+# psycopg2-binary==2.9.9  # для PostgreSQL
